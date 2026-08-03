@@ -48,6 +48,7 @@ interface ConfigValues {
   remitenteNombre: string;
   asuntoCliente: string;
   asuntoAdmin: string;
+  celular: string;
 }
 
 const CONFIG_DEFAULTS: ConfigValues = {
@@ -55,6 +56,7 @@ const CONFIG_DEFAULTS: ConfigValues = {
   remitenteNombre: 'CotizaSalud.cl — Bupa Seguros',
   asuntoCliente: 'Tu cotización de seguro de salud Bupa',
   asuntoAdmin: 'Nueva cotización recibida en CotizaSalud.cl',
+  celular: '+56 9 1234 5678',
 };
 
 /**
@@ -82,9 +84,19 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   }
 }
 
-/** Permite verificar que el despliegue está activo abriendo la URL en el navegador. */
+/**
+ * Permite verificar que el despliegue está activo abriendo la URL en el
+ * navegador, y expone el celular de contacto (parametrizado en la hoja
+ * "Config") para que el frontend arme los links de WhatsApp dinámicamente.
+ */
 function doGet(): GoogleAppsScript.Content.TextOutput {
-  return jsonResponse({ ok: true, service: 'CotizaSalud cotizaciones', status: 'online' });
+  const config = getConfig();
+  return jsonResponse({
+    ok: true,
+    service: 'CotizaSalud cotizaciones',
+    status: 'online',
+    celular: config.celular,
+  });
 }
 
 function jsonResponse(body: Record<string, unknown>): GoogleAppsScript.Content.TextOutput {
@@ -168,16 +180,17 @@ function getConfig(): ConfigValues {
   const values = sheet.getDataRange().getValues() as string[][];
   const map: Record<string, string> = {};
   values.slice(1).forEach((row) => {
-    const key = (row[0] || '').toString().trim();
+    const key = (row[0] || '').toString().trim().toLowerCase();
     const value = (row[1] || '').toString().trim();
     if (key) map[key] = value;
   });
 
   return {
-    adminEmail: map['AdminEmail'] || CONFIG_DEFAULTS.adminEmail,
-    remitenteNombre: map['RemitenteNombre'] || CONFIG_DEFAULTS.remitenteNombre,
-    asuntoCliente: map['AsuntoCliente'] || CONFIG_DEFAULTS.asuntoCliente,
-    asuntoAdmin: map['AsuntoAdmin'] || CONFIG_DEFAULTS.asuntoAdmin,
+    adminEmail: map['adminemail'] || CONFIG_DEFAULTS.adminEmail,
+    remitenteNombre: map['remitentenombre'] || CONFIG_DEFAULTS.remitenteNombre,
+    asuntoCliente: map['asuntocliente'] || CONFIG_DEFAULTS.asuntoCliente,
+    asuntoAdmin: map['asuntoadmin'] || CONFIG_DEFAULTS.asuntoAdmin,
+    celular: map['celular'] || CONFIG_DEFAULTS.celular,
   };
 }
 
@@ -207,6 +220,7 @@ function getOrCreateConfigSheet(): GoogleAppsScript.Spreadsheet.Sheet {
     sheet.appendRow(['RemitenteNombre', CONFIG_DEFAULTS.remitenteNombre]);
     sheet.appendRow(['AsuntoCliente', CONFIG_DEFAULTS.asuntoCliente]);
     sheet.appendRow(['AsuntoAdmin', CONFIG_DEFAULTS.asuntoAdmin]);
+    sheet.appendRow(['Celular', CONFIG_DEFAULTS.celular]);
     sheet.getRange(1, 1, 1, 2).setFontWeight('bold');
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, 2);

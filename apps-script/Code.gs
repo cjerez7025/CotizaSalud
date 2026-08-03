@@ -29,6 +29,7 @@ var CONFIG_DEFAULTS = {
   remitenteNombre: 'CotizaSalud.cl — Bupa Seguros',
   asuntoCliente: 'Tu cotización de seguro de salud Bupa',
   asuntoAdmin: 'Nueva cotización recibida en CotizaSalud.cl',
+  celular: '+56 9 1234 5678',
 };
 
 function doPost(e) {
@@ -52,7 +53,13 @@ function doPost(e) {
 }
 
 function doGet() {
-  return jsonResponse({ ok: true, service: 'CotizaSalud cotizaciones', status: 'online' });
+  var config = getConfig();
+  return jsonResponse({
+    ok: true,
+    service: 'CotizaSalud cotizaciones',
+    status: 'online',
+    celular: config.celular,
+  });
 }
 
 function jsonResponse(body) {
@@ -129,16 +136,17 @@ function getConfig() {
   var values = sheet.getDataRange().getValues();
   var map = {};
   values.slice(1).forEach(function (row) {
-    var key = (row[0] || '').toString().trim();
+    var key = (row[0] || '').toString().trim().toLowerCase();
     var value = (row[1] || '').toString().trim();
     if (key) map[key] = value;
   });
 
   return {
-    adminEmail: map['AdminEmail'] || CONFIG_DEFAULTS.adminEmail,
-    remitenteNombre: map['RemitenteNombre'] || CONFIG_DEFAULTS.remitenteNombre,
-    asuntoCliente: map['AsuntoCliente'] || CONFIG_DEFAULTS.asuntoCliente,
-    asuntoAdmin: map['AsuntoAdmin'] || CONFIG_DEFAULTS.asuntoAdmin,
+    adminEmail: map['adminemail'] || CONFIG_DEFAULTS.adminEmail,
+    remitenteNombre: map['remitentenombre'] || CONFIG_DEFAULTS.remitenteNombre,
+    asuntoCliente: map['asuntocliente'] || CONFIG_DEFAULTS.asuntoCliente,
+    asuntoAdmin: map['asuntoadmin'] || CONFIG_DEFAULTS.asuntoAdmin,
+    celular: map['celular'] || CONFIG_DEFAULTS.celular,
   };
 }
 
@@ -168,6 +176,7 @@ function getOrCreateConfigSheet() {
     sheet.appendRow(['RemitenteNombre', CONFIG_DEFAULTS.remitenteNombre]);
     sheet.appendRow(['AsuntoCliente', CONFIG_DEFAULTS.asuntoCliente]);
     sheet.appendRow(['AsuntoAdmin', CONFIG_DEFAULTS.asuntoAdmin]);
+    sheet.appendRow(['Celular', CONFIG_DEFAULTS.celular]);
     sheet.getRange(1, 1, 1, 2).setFontWeight('bold');
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, 2);

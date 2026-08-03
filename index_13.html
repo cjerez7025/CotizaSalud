@@ -442,7 +442,7 @@
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="nav-actions">
-      <div class="nav-phone">Asesoría telefónica<b>+56 9 1234 5678</b></div>
+      <div class="nav-phone">Asesoría telefónica<b class="js-phone-number">+56 9 1234 5678</b></div>
       <a href="#contacto" class="btn btn-primary">Cotiza gratis</a>
       <label class="burger" for="menuToggle" aria-label="Abrir menú"><span></span><span></span><span></span></label>
     </div>
@@ -452,7 +452,7 @@
     <a href="#proceso">Cómo funciona</a>
     <a href="#confianza">Por qué nosotros</a>
     <a href="#contacto">Contacto</a>
-    <div class="mobile-menu-phone">Asesoría telefónica<b>+56 9 1234 5678</b></div>
+    <div class="mobile-menu-phone">Asesoría telefónica<b class="js-phone-number">+56 9 1234 5678</b></div>
     <a href="#contacto" class="btn btn-primary" style="width:100%;">Cotiza gratis</a>
   </nav>
 </header>
@@ -532,7 +532,7 @@
         <p class="lead">Cotiza en minutos y recibe una propuesta clara, sin letra chica, adaptada a tu presupuesto y a tu sistema de salud.</p>
         <div class="hero-ctas">
           <a href="#contacto" class="btn btn-primary">Cotizar en 1 minuto</a>
-          <a href="#" class="btn btn-wsp">💬 Hablar por WhatsApp</a>
+          <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener">💬 Hablar por WhatsApp</a>
         </div>
         <div class="trust-row">
           <div class="trust-item"><span class="dot">✓</span>Ejecutiva oficial Bupa</div>
@@ -702,7 +702,7 @@
               <li><span class="check">✓</span>Respuesta en menos de 24 horas</li>
               <li><span class="check">✓</span>Atención también por WhatsApp</li>
             </ul>
-            <a href="#" class="btn btn-wsp">💬 Prefiero escribir por WhatsApp</a>
+            <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener">💬 Prefiero escribir por WhatsApp</a>
           </div>
           <div class="cta-form">
             <h3>Cotiza tu seguro</h3>
@@ -790,7 +790,7 @@
       <div>
         <h4>Contacto</h4>
         <ul>
-          <li>+56 9 1234 5678</li>
+          <li class="js-phone-number">+56 9 1234 5678</li>
           <li>contacto@cotizasalud.cl</li>
           <li>Santiago, Chile</li>
         </ul>
@@ -803,7 +803,7 @@
   </div>
 </footer>
 
-<a href="#" class="wsp-float" aria-label="Escríbenos por WhatsApp">💬</a>
+<a href="#" class="wsp-float js-wsp-link" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">💬</a>
 
 <!-- MODAL DE BIENVENIDA -->
 <div class="modal-overlay" id="welcomeModal">
@@ -857,7 +857,7 @@
         <button class="btn btn-primary" type="submit" id="cotizaModalFormBtn">Enviar y recibir mi cotización</button>
         <p class="form-status" id="cotizaModalFormStatus" aria-live="polite"></p>
       </form>
-      <a href="#" class="btn btn-wsp" style="width:100%;margin-top:12px;">💬 Prefiero escribir por WhatsApp</a>
+      <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener" style="width:100%;margin-top:12px;">💬 Prefiero escribir por WhatsApp</a>
       <button class="modal-later" id="modalLater" type="button">Tal vez más tarde</button>
       </div>
       <div class="form-success" id="cotizaModalFormSuccess">
@@ -1006,6 +1006,29 @@
   // 1) Despliega apps-script/Code.ts como Web App (Ejecutar como "Yo", Acceso "Cualquier usuario").
   // 2) Pega aquí la URL que termina en /exec.
   var COTIZA_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwMvTqCryXR_bshXzupaf9nYMpRZdeHGjy1rpmketrjJWWpXgvWNcavh3ygV9zAmkEriQ/exec';
+
+  // ---- Celular de contacto (parametrizado en la hoja "Config" del Sheet) ----
+  // Al cargar la página, se pide a Apps Script (doGet) el celular vigente y
+  // se usa para armar los links de WhatsApp y los números mostrados en el sitio.
+  try{
+    fetch(COTIZA_WEBAPP_URL, { method: 'GET' })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if(!data || !data.celular) return;
+        var digits = data.celular.toString().replace(/[^0-9]/g, '');
+        if(!digits) return;
+        var wspText = encodeURIComponent('Hola, quiero cotizar un seguro de salud Bupa');
+        var wspUrl = 'https://wa.me/' + digits + '?text=' + wspText;
+
+        document.querySelectorAll('.js-wsp-link').forEach(function(link){
+          link.setAttribute('href', wspUrl);
+        });
+        document.querySelectorAll('.js-phone-number').forEach(function(el){
+          el.textContent = data.celular;
+        });
+      })
+      .catch(function(err){ console.error('config celular error', err); });
+  }catch(err){ console.error('config celular error', err); }
 
   function initCotizaForm(formId, statusId, btnId, wrapId, successId, fields, origen){
     try{
