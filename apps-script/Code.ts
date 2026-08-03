@@ -1,0 +1,224 @@
+/// <reference types="google-apps-script" />
+
+/**
+ * CotizaSalud.cl — Backend de cotizaciones (Google Apps Script)
+ *
+ * Este script se debe vincular a la planilla:
+ * https://docs.google.com/spreadsheets/d/1iPjnrrdtr42oK5NDB6NRu6b9viBVupzZIPNfQ7p_0jU/edit
+ *
+ * Qué hace:
+ *  1) Recibe cada cotización enviada desde index_13.html (fetch POST).
+ *  2) La guarda como una fila nueva en la hoja "Cotizaciones".
+ *  3) Envía un correo de confirmación al cliente.
+ *  4) Envía un correo de notificación a la ejecutiva (correo parametrizado
+ *     en la hoja "Config", NO hardcodeado).
+ *
+ * Despliegue: Extensiones > Apps Script > pegar/subir este código (transpilado
+ * a .gs vía clasp) > Implementar > Aplicación web > Ejecutar como "Yo",
+ * Acceso "Cualquier usuario". Ver README de despliegue entregado aparte.
+ */
+
+const SHEET_COTIZACIONES = 'Cotizaciones';
+const SHEET_CONFIG = 'Config';
+
+const COTIZACIONES_HEADERS = [
+  'Fecha',
+  'Origen',
+  'Nombre',
+  'Teléfono',
+  'Correo',
+  'Sistema de salud',
+  'Plan de interés',
+  'Mensaje',
+  'Estado',
+] as const;
+
+interface CotizacionInput {
+  origen?: string;
+  nombre?: string;
+  telefono?: string;
+  email?: string;
+  sistema?: string;
+  interes?: string;
+  mensaje?: string;
+}
+
+interface ConfigValues {
+  adminEmail: string;
+  remitenteNombre: string;
+  asuntoCliente: string;
+  asuntoAdmin: string;
+}
+
+const CONFIG_DEFAULTS: ConfigValues = {
+  adminEmail: 'lorenasotomayor75@gmail.cl',
+  remitenteNombre: 'CotizaSalud.cl — Bupa Seguros',
+  asuntoCliente: 'Tu cotización de seguro de salud Bupa',
+  asuntoAdmin: 'Nueva cotización recibida en CotizaSalud.cl',
+};
+
+/**
+ * Punto de entrada HTTP. El frontend hace POST con body en texto plano
+ * (Content-Type: text/plain) para evitar el preflight CORS que Apps Script
+ * no soporta bien.
+ */
+function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
+  try {
+    const raw = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
+    const input = JSON.parse(raw) as CotizacionInput;
+
+    if (!input.nombre || !input.email) {
+      return jsonResponse({ ok: false, error: 'Faltan campos obligatorios: nombre y email.' });
+    }
+
+    const config = getConfig();
+    appendCotizacion(input);
+    sendClientEmail(input, config);
+    sendAdminEmail(input, config);
+
+    return jsonResponse({ ok: true });
+  } catch (err) {
+    return jsonResponse({ ok: false, error: String(err) });
+  }
+}
+
+/** Permite verificar que el despliegue está activo abriendo la URL en el navegador. */
+function doGet(): GoogleAppsScript.Content.TextOutput {
+  return jsonResponse({ ok: true, service: 'CotizaSalud cotizaciones', status: 'online' });
+}
+
+function jsonResponse(body: Record<string, unknown>): GoogleAppsScript.Content.TextOutput {
+  return ContentService.createTextOutput(JSON.stringify(body)).setMimeType(
+    ContentService.MimeType.JSON
+  );
+}
+
+function appendCotizacion(input: CotizacionInput): void {
+  const sheet = getOrCreateCotizacionesSheet();
+  sheet.appendRow([
+    new Date(),
+    input.origen || 'formulario',
+    input.nombre || '',
+    input.telefono || '',
+    input.email || '',
+    input.sistema || '',
+    input.interes || '',
+    input.mensaje || '',
+    'Nueva',
+  ]);
+}
+
+function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
+  const nombre = input.nombre || 'Cliente';
+  const body = [
+    `Hola ${nombre},`,
+    '',
+    'Gracias por cotizar tu seguro de salud con nosotros. Recibimos tus datos y te contactaremos en menos de 24 horas con una propuesta personalizada.',
+    '',
+    'Resumen de tu solicitud:',
+    `- Sistema de salud: ${input.sistema || 'No indicado'}`,
+    `- Plan de interés: ${input.interes || 'No indicado'}`,
+    input.mensaje ? `- Mensaje: ${input.mensaje}` : '',
+    '',
+    'Si tienes urgencia, puedes escribirnos directo por WhatsApp.',
+    '',
+    'Saludos,',
+    config.remitenteNombre,
+  ]
+    .filter((line) => line !== '')
+    .join('\n');
+
+  MailApp.sendEmail({
+    to: input.email as string,
+    subject: config.asuntoCliente,
+    body,
+    name: config.remitenteNombre,
+  });
+}
+
+function sendAdminEmail(input: CotizacionInput, config: ConfigValues): void {
+  const body = [
+    'Se recibió una nueva cotización desde CotizaSalud.cl:',
+    '',
+    `Nombre: ${input.nombre || ''}`,
+    `Teléfono: ${input.telefono || ''}`,
+    `Correo: ${input.email || ''}`,
+    `Sistema de salud: ${input.sistema || ''}`,
+    `Plan de interés: ${input.interes || ''}`,
+    `Mensaje: ${input.mensaje || ''}`,
+    `Origen: ${input.origen || 'formulario'}`,
+    `Fecha: ${new Date().toLocaleString('es-CL')}`,
+  ].join('\n');
+
+  MailApp.sendEmail({
+    to: config.adminEmail,
+    subject: config.asuntoAdmin,
+    body,
+    name: config.remitenteNombre,
+  });
+}
+
+/**
+ * Lee la hoja "Config" (clave en columna A, valor en columna B) y arma la
+ * configuración efectiva. Si falta una clave, cae al valor por defecto —
+ * así el correo de destino admin siempre es el parametrizado en el Sheet.
+ */
+function getConfig(): ConfigValues {
+  const sheet = getOrCreateConfigSheet();
+  const values = sheet.getDataRange().getValues() as string[][];
+  const map: Record<string, string> = {};
+  values.slice(1).forEach((row) => {
+    const key = (row[0] || '').toString().trim();
+    const value = (row[1] || '').toString().trim();
+    if (key) map[key] = value;
+  });
+
+  return {
+    adminEmail: map['AdminEmail'] || CONFIG_DEFAULTS.adminEmail,
+    remitenteNombre: map['RemitenteNombre'] || CONFIG_DEFAULTS.remitenteNombre,
+    asuntoCliente: map['AsuntoCliente'] || CONFIG_DEFAULTS.asuntoCliente,
+    asuntoAdmin: map['AsuntoAdmin'] || CONFIG_DEFAULTS.asuntoAdmin,
+  };
+}
+
+function getOrCreateCotizacionesSheet(): GoogleAppsScript.Spreadsheet.Sheet {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_COTIZACIONES);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_COTIZACIONES);
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(COTIZACIONES_HEADERS as unknown as string[]);
+    sheet.getRange(1, 1, 1, COTIZACIONES_HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function getOrCreateConfigSheet(): GoogleAppsScript.Spreadsheet.Sheet {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_CONFIG);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_CONFIG);
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['Clave', 'Valor']);
+    sheet.appendRow(['AdminEmail', CONFIG_DEFAULTS.adminEmail]);
+    sheet.appendRow(['RemitenteNombre', CONFIG_DEFAULTS.remitenteNombre]);
+    sheet.appendRow(['AsuntoCliente', CONFIG_DEFAULTS.asuntoCliente]);
+    sheet.appendRow(['AsuntoAdmin', CONFIG_DEFAULTS.asuntoAdmin]);
+    sheet.getRange(1, 1, 1, 2).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.autoResizeColumns(1, 2);
+  }
+  return sheet;
+}
+
+/**
+ * Ejecutar UNA VEZ manualmente desde el editor de Apps Script (▶ Run > setup)
+ * para crear las hojas "Cotizaciones" y "Config" con sus encabezados.
+ */
+function setup(): void {
+  getOrCreateCotizacionesSheet();
+  getOrCreateConfigSheet();
+}
