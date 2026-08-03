@@ -311,6 +311,16 @@
   .form-status.error{color:#C0392B;}
   .form-status.loading{color:var(--slate);}
   button[disabled]{opacity:.65;cursor:not-allowed;transform:none !important;}
+  .form-success{display:none;text-align:center;padding:20px 8px 4px;animation:fadeInUp .4s ease;}
+  .form-success .check-circle{
+    width:56px;height:56px;border-radius:50%;margin:0 auto 16px;
+    background:var(--teal-pale);color:var(--teal-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-weight:700;
+  }
+  .form-success h4{font-size:19px;color:var(--ink);margin-bottom:10px;}
+  .form-success p{font-size:14px;color:var(--slate);line-height:1.6;max-width:360px;margin:0 auto;}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   .consent-row{
     display:flex;align-items:flex-start;gap:9px;margin:14px 0 16px;
   }
@@ -696,6 +706,7 @@
           </div>
           <div class="cta-form">
             <h3>Cotiza tu seguro</h3>
+            <div id="cotizaFormWrap">
             <form id="cotizaForm" onsubmit="return false;">
               <div class="form-grid">
                 <div class="full">
@@ -740,6 +751,12 @@
               <p class="form-status" id="cotizaFormStatus" aria-live="polite"></p>
             </form>
             <p class="form-fine">Tus datos se usan solo para contactarte con tu cotización. No hacemos spam.</p>
+            </div>
+            <div class="form-success" id="cotizaFormSuccess">
+              <div class="check-circle">✓</div>
+              <h4>¡Tu cotización fue enviada!</h4>
+              <p>Gracias por confiar en nosotros. Te contactaremos a la brevedad con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -796,6 +813,7 @@
     <h2 style="font-size:22px;margin-bottom:8px;">Cotiza gratis tu plan Bupa</h2>
     <p style="color:var(--slate);font-size:14px;line-height:1.55;margin-bottom:20px;">Completa tus datos y te envío una propuesta clara en menos de 24 horas, sin costo ni compromiso.</p>
     <div class="cta-form" style="padding:0;">
+      <div id="cotizaModalFormWrap">
       <form id="cotizaModalForm" onsubmit="return false;">
         <div class="form-grid">
           <div class="full">
@@ -841,6 +859,13 @@
       </form>
       <a href="#" class="btn btn-wsp" style="width:100%;margin-top:12px;">💬 Prefiero escribir por WhatsApp</a>
       <button class="modal-later" id="modalLater" type="button">Tal vez más tarde</button>
+      </div>
+      <div class="form-success" id="cotizaModalFormSuccess">
+        <div class="check-circle">✓</div>
+        <h4>¡Tu cotización fue enviada!</h4>
+        <p>Gracias por confiar en nosotros. Te contactaremos a la brevedad con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+        <button class="btn btn-primary" type="button" id="cotizaModalSuccessClose" style="width:100%;margin-top:6px;">Cerrar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -982,11 +1007,13 @@
   // 2) Pega aquí la URL que termina en /exec.
   var COTIZA_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwMvTqCryXR_bshXzupaf9nYMpRZdeHGjy1rpmketrjJWWpXgvWNcavh3ygV9zAmkEriQ/exec';
 
-  function initCotizaForm(formId, statusId, btnId, fields, origen){
+  function initCotizaForm(formId, statusId, btnId, wrapId, successId, fields, origen){
     try{
       var form = document.getElementById(formId);
       var status = document.getElementById(statusId);
       var btn = document.getElementById(btnId);
+      var wrap = document.getElementById(wrapId);
+      var success = document.getElementById(successId);
       if(!form) return;
 
       form.addEventListener('submit', function(e){
@@ -1022,9 +1049,11 @@
           .then(function(res){ return res.json(); })
           .then(function(data){
             if(data && data.ok){
-              status.className = 'form-status success';
-              status.textContent = '¡Listo! Revisa tu correo, te enviamos la confirmación. Te contactaremos pronto.';
+              status.className = '';
+              status.textContent = '';
               form.reset();
+              if(wrap) wrap.style.display = 'none';
+              if(success) success.style.display = 'block';
             } else {
               status.className = 'form-status error';
               status.textContent = (data && data.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';
@@ -1052,15 +1081,26 @@
     }catch(err){ console.error('initCotizaForm error', err); }
   }
 
-  initCotizaForm('cotizaForm', 'cotizaFormStatus', 'cotizaFormBtn', {
+  initCotizaForm('cotizaForm', 'cotizaFormStatus', 'cotizaFormBtn', 'cotizaFormWrap', 'cotizaFormSuccess', {
     nombre: 'nombre', telefono: 'telefono', email: 'email',
     sistema: 'sistema', interes: 'interes', mensaje: 'mensaje'
   }, 'formulario-hero');
 
-  initCotizaForm('cotizaModalForm', 'cotizaModalFormStatus', 'cotizaModalFormBtn', {
+  initCotizaForm('cotizaModalForm', 'cotizaModalFormStatus', 'cotizaModalFormBtn', 'cotizaModalFormWrap', 'cotizaModalFormSuccess', {
     nombre: 'modal-nombre', telefono: 'modal-telefono', email: 'modal-email',
     sistema: 'modal-sistema', interes: 'modal-interes', mensaje: 'modal-mensaje'
   }, 'modal-bienvenida');
+
+  // ---- Cerrar modal desde el mensaje de éxito ----
+  try{
+    var modalSuccessClose = document.getElementById('cotizaModalSuccessClose');
+    if(modalSuccessClose){
+      modalSuccessClose.addEventListener('click', function(){
+        var modalEl = document.getElementById('welcomeModal');
+        if(modalEl){ modalEl.classList.remove('open'); document.body.style.overflow = ''; }
+      });
+    }
+  }catch(err){ console.error('modal success close error', err); }
 </script>
 </body>
 </html>
