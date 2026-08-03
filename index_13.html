@@ -696,7 +696,7 @@
           </div>
           <div class="cta-form">
             <h3>Cotiza tu seguro</h3>
-            <form id="cotizaForm">
+            <form id="cotizaForm" onsubmit="return false;">
               <div class="form-grid">
                 <div class="full">
                   <label for="nombre">Nombre completo</label>
@@ -796,7 +796,7 @@
     <h2 style="font-size:22px;margin-bottom:8px;">Cotiza gratis tu plan Bupa</h2>
     <p style="color:var(--slate);font-size:14px;line-height:1.55;margin-bottom:20px;">Completa tus datos y te envío una propuesta clara en menos de 24 horas, sin costo ni compromiso.</p>
     <div class="cta-form" style="padding:0;">
-      <form id="cotizaModalForm">
+      <form id="cotizaModalForm" onsubmit="return false;">
         <div class="form-grid">
           <div class="full">
             <label for="modal-nombre">Nombre completo</label>
@@ -991,6 +991,9 @@
 
       form.addEventListener('submit', function(e){
         e.preventDefault();
+        e.stopPropagation();
+
+        try{
 
         if(COTIZA_WEBAPP_URL.indexOf('PEGA_AQUI') !== -1){
           status.className = 'form-status error';
@@ -1036,6 +1039,15 @@
             btn.disabled = false;
             btn.textContent = originalText;
           });
+
+        }catch(innerErr){
+          console.error('cotiza submit inner error', innerErr);
+          if(status){
+            status.className = 'form-status error';
+            status.textContent = 'Ocurrió un error inesperado. Intenta nuevamente.';
+          }
+          if(btn) btn.disabled = false;
+        }
       });
     }catch(err){ console.error('initCotizaForm error', err); }
   }
