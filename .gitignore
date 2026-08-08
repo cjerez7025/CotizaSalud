@@ -5,6 +5,7 @@ node_modules/
 _imgcheck/
 
 # Material fuente de productos (ya incorporado al sitio, no se publica tal cual)
-*.pdf
-*.jpeg
-*.jpg
+/*.pdf
+/*.jpeg
+/*.jpg
+_pdfimg/

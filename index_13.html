@@ -169,12 +169,16 @@
     position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0;
   }
   /* Espejadas para que la persona/rostro principal quede a la derecha, fuera de la tarjeta de texto */
-  .slide-1 .slide-bg,.slide-2 .slide-bg,.slide-3 .slide-bg{transform:scaleX(-1);}
+  .slide-3 .slide-bg,.slide-4 .slide-bg{transform:scaleX(-1);}
   .slide-overlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
   .slide-overlay-1{background:linear-gradient(180deg,rgba(0,90,148,.22),rgba(0,90,148,.5));}
   .slide-overlay-2{background:linear-gradient(180deg,rgba(10,42,67,.25),rgba(10,42,67,.55));}
   .slide-overlay-3{background:linear-gradient(180deg,rgba(90,30,110,.22),rgba(90,30,110,.5));}
   .slide-overlay-4{background:linear-gradient(180deg,rgba(0,89,110,.22),rgba(0,89,110,.5));}
+  .slide-overlay-5{background:linear-gradient(180deg,rgba(0,121,140,.22),rgba(0,121,140,.5));}
+  .slide-overlay-6{background:linear-gradient(180deg,rgba(140,95,20,.22),rgba(140,95,20,.48));}
+  .slide-overlay-7{background:linear-gradient(180deg,rgba(20,110,90,.22),rgba(20,110,90,.5));}
+  .slide-overlay-8{background:linear-gradient(180deg,rgba(10,42,67,.22),rgba(10,42,67,.52));}
   .slide-content{
     position:relative;z-index:2;max-width:390px;
     background:rgba(255,255,255,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -475,8 +479,30 @@
         <div class="carousel-track" id="carouselTrack">
 
           <div class="slide slide-1" id="slide1">
-            <img class="slide-bg" src="https://images.pexels.com/photos/6129158/pexels-photo-6129158.jpeg?auto=compress&cs=tinysrgb&w=1200&h=700&dpr=1" alt="" loading="eager" onerror="this.style.display='none'">
+            <img class="slide-bg" src="images/plans/cuidado-total-70.jpg" alt="" loading="eager" onerror="this.style.display='none'">
             <div class="slide-overlay slide-overlay-1"></div>
+            <div class="slide-content">
+              <span class="slide-eyebrow">Más elegido</span>
+              <h3>Bupa Cuidado Total 70</h3>
+              <p>70% de bonificación en clínicas de libre elección, consultas ilimitadas y cobertura hasta UF 400 al año.</p>
+              <a href="#planes" class="btn btn-gold">Ver más</a>
+            </div>
+          </div>
+
+          <div class="slide slide-2" id="slide2">
+            <img class="slide-bg" src="images/plans/cuidado-total-60.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-2"></div>
+            <div class="slide-content">
+              <span class="slide-eyebrow">Libre elección</span>
+              <h3>Bupa Cuidado Total 60</h3>
+              <p>La alternativa más económica: 60% de bonificación en clínicas de tu elección, con tope de UF 250 al año.</p>
+              <a href="#planes" class="btn btn-gold">Ver más</a>
+            </div>
+          </div>
+
+          <div class="slide slide-3" id="slide3">
+            <img class="slide-bg" src="images/plans/catastrofico.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-3"></div>
             <div class="slide-content">
               <span class="slide-eyebrow">Alto costo</span>
               <h3>Seguro Bupa Catastrófico</h3>
@@ -485,20 +511,9 @@
             </div>
           </div>
 
-          <div class="slide slide-2" id="slide2">
-            <img class="slide-bg" src="https://images.pexels.com/photos/7652046/pexels-photo-7652046.jpeg?auto=compress&cs=tinysrgb&w=1200&h=700&dpr=1" alt="" loading="eager" onerror="this.style.display='none'">
-            <div class="slide-overlay slide-overlay-2"></div>
-            <div class="slide-content">
-              <span class="slide-eyebrow">Seguros para empresas</span>
-              <h3>Bupa Pymes 70 Smart, sin deducible</h3>
-              <p>Cobertura de salud para tu equipo desde UF 0,49 por titular, con telemedicina 100% y tarifa única sin importar el tamaño de tu empresa.</p>
-              <a href="#planes" class="btn btn-gold">Ver más</a>
-            </div>
-          </div>
-
-          <div class="slide slide-3" id="slide3">
-            <img class="slide-bg" src="https://images.pexels.com/photos/4173205/pexels-photo-4173205.jpeg?auto=compress&cs=tinysrgb&w=1200&h=700&dpr=1" alt="" loading="eager" onerror="this.style.display='none'">
-            <div class="slide-overlay slide-overlay-3"></div>
+          <div class="slide slide-4" id="slide4">
+            <img class="slide-bg" src="images/plans/proteccion-80-70.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-4"></div>
             <div class="slide-content">
               <span class="slide-eyebrow">Exclusivo Fonasa</span>
               <h3>Bupa + Protección, hasta 80% de cobertura</h3>
@@ -507,13 +522,46 @@
             </div>
           </div>
 
-          <div class="slide slide-4" id="slide4">
-            <img class="slide-bg" src="https://images.pexels.com/photos/4225920/pexels-photo-4225920.jpeg?auto=compress&cs=tinysrgb&w=1200&h=700&dpr=1" alt="" loading="eager" onerror="this.style.display='none'">
-            <div class="slide-overlay slide-overlay-4"></div>
+          <div class="slide slide-5" id="slide5">
+            <img class="slide-bg" src="images/plans/multisalud.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-5"></div>
+            <div class="slide-content">
+              <span class="slide-eyebrow">Exclusivo Fonasa</span>
+              <h3>Bupa MultiSalud, tú eliges tu red</h3>
+              <p>Hasta 90% de cobertura en la red preferente, con extensión catastrófica hasta UF 7.500 adicionales.</p>
+              <a href="#planes" class="btn btn-gold">Ver más</a>
+            </div>
+          </div>
+
+          <div class="slide slide-6" id="slide6">
+            <img class="slide-bg" src="images/plans/complementa.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-6"></div>
+            <div class="slide-content">
+              <span class="slide-eyebrow">Para quienes tienen Isapre</span>
+              <h3>Bupa Complementa tu plan actual</h3>
+              <p>Cubre el copago al mismo porcentaje que tu Isapre, sin deducible ni declaración de salud.</p>
+              <a href="#planes" class="btn btn-gold">Ver más</a>
+            </div>
+          </div>
+
+          <div class="slide slide-7" id="slide7">
+            <img class="slide-bg" src="images/plans/integramedica-100.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-7"></div>
             <div class="slide-content">
               <span class="slide-eyebrow">Sin declaración de salud</span>
               <h3>Plan IntegraMédica 100%, cubre preexistencias</h3>
               <p>100% de cobertura sobre el copago en consultas, exámenes e imágenes en toda la red IntegraMédica, sin importar tu historial de salud.</p>
+              <a href="#planes" class="btn btn-gold">Ver más</a>
+            </div>
+          </div>
+
+          <div class="slide slide-8" id="slide8">
+            <img class="slide-bg" src="images/plans/pymes-70-smart.jpg" alt="" loading="eager" onerror="this.style.display='none'">
+            <div class="slide-overlay slide-overlay-8"></div>
+            <div class="slide-content">
+              <span class="slide-eyebrow">Seguros para empresas</span>
+              <h3>Bupa Pymes 70 Smart, sin deducible</h3>
+              <p>Cobertura de salud para tu equipo desde UF 0,49 por titular, con telemedicina 100% y tarifa única sin importar el tamaño de tu empresa.</p>
               <a href="#planes" class="btn btn-gold">Ver más</a>
             </div>
           </div>
@@ -528,6 +576,10 @@
           <a href="#slide2" class="dot-btn" aria-label="Diapositiva 2"></a>
           <a href="#slide3" class="dot-btn" aria-label="Diapositiva 3"></a>
           <a href="#slide4" class="dot-btn" aria-label="Diapositiva 4"></a>
+          <a href="#slide5" class="dot-btn" aria-label="Diapositiva 5"></a>
+          <a href="#slide6" class="dot-btn" aria-label="Diapositiva 6"></a>
+          <a href="#slide7" class="dot-btn" aria-label="Diapositiva 7"></a>
+          <a href="#slide8" class="dot-btn" aria-label="Diapositiva 8"></a>
         </div>
       </div>
     </div>
