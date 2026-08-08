@@ -848,7 +848,7 @@
         <div class="stats">
           <div class="stat"><div class="num mono">9</div><div class="label">años de experiencia</div></div>
           <div class="stat"><div class="num mono">1.200+</div><div class="label">familias asesoradas</div></div>
-          <div class="stat"><div class="num mono">3</div><div class="label">aseguradoras comparadas</div></div>
+          <div class="stat"><div class="num mono">10</div><div class="label">planes Bupa disponibles</div></div>
           <div class="stat"><div class="num mono">24h</div><div class="label">tiempo de respuesta</div></div>
         </div>
       </div>
@@ -1144,7 +1144,7 @@
     });
 
     function autoplay(){
-      timer = setInterval(function(){ goTo(currentIndex()+1); }, 5500);
+      timer = setInterval(function(){ goTo(currentIndex()+1); }, 8000);
     }
     function resetTimer(){ clearInterval(timer); autoplay(); }
     prevBtn.addEventListener('click', function(e){ e.preventDefault(); goTo(currentIndex()-1); resetTimer(); });
