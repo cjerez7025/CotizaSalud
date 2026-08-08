@@ -3,12 +3,12 @@
 /**
  * CotizaSalud.cl — Backend de cotizaciones (Google Apps Script)
  *
- * Este script se debe vincular a la planilla:
- * https://docs.google.com/spreadsheets/d/1iPjnrrdtr42oK5NDB6NRu6b9viBVupzZIPNfQ7p_0jU/edit
+ * Guarda los leads en la planilla "LeadsWeb":
+ * https://docs.google.com/spreadsheets/d/14LiY2PQUtkN8CaomnkZTxG9uPrRzz5tmEzw2UOaPT-k/edit
  *
  * Qué hace:
  *  1) Recibe cada cotización enviada desde index_13.html (fetch POST).
- *  2) La guarda como una fila nueva en la hoja "Cotizaciones".
+ *  2) La guarda como una fila nueva en la hoja "LeadsWeb".
  *  3) Envía un correo de confirmación al cliente.
  *  4) Envía un correo de notificación a la ejecutiva (correo parametrizado
  *     en la hoja "Config", NO hardcodeado).
@@ -18,7 +18,8 @@
  * Acceso "Cualquier usuario". Ver README de despliegue entregado aparte.
  */
 
-const SHEET_COTIZACIONES = 'Cotizaciones';
+const TARGET_SPREADSHEET_ID = '14LiY2PQUtkN8CaomnkZTxG9uPrRzz5tmEzw2UOaPT-k';
+const SHEET_COTIZACIONES = 'LeadsWeb';
 const SHEET_CONFIG = 'Config';
 
 const COTIZACIONES_HEADERS = [
@@ -194,8 +195,12 @@ function getConfig(): ConfigValues {
   };
 }
 
+function getTargetSpreadsheet(): GoogleAppsScript.Spreadsheet.Spreadsheet {
+  return SpreadsheetApp.openById(TARGET_SPREADSHEET_ID);
+}
+
 function getOrCreateCotizacionesSheet(): GoogleAppsScript.Spreadsheet.Sheet {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getTargetSpreadsheet();
   let sheet = ss.getSheetByName(SHEET_COTIZACIONES);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_COTIZACIONES);
@@ -209,7 +214,7 @@ function getOrCreateCotizacionesSheet(): GoogleAppsScript.Spreadsheet.Sheet {
 }
 
 function getOrCreateConfigSheet(): GoogleAppsScript.Spreadsheet.Sheet {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getTargetSpreadsheet();
   let sheet = ss.getSheetByName(SHEET_CONFIG);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_CONFIG);

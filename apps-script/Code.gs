@@ -9,7 +9,8 @@
  * (ver instrucciones aparte) en vez de este archivo.
  */
 
-var SHEET_COTIZACIONES = 'Cotizaciones';
+var TARGET_SPREADSHEET_ID = '14LiY2PQUtkN8CaomnkZTxG9uPrRzz5tmEzw2UOaPT-k';
+var SHEET_COTIZACIONES = 'LeadsWeb';
 var SHEET_CONFIG = 'Config';
 
 var COTIZACIONES_HEADERS = [
@@ -150,8 +151,12 @@ function getConfig() {
   };
 }
 
+function getTargetSpreadsheet() {
+  return SpreadsheetApp.openById(TARGET_SPREADSHEET_ID);
+}
+
 function getOrCreateCotizacionesSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getTargetSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_COTIZACIONES);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_COTIZACIONES);
@@ -165,7 +170,7 @@ function getOrCreateCotizacionesSheet() {
 }
 
 function getOrCreateConfigSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getTargetSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_CONFIG);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_CONFIG);

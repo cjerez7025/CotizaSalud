@@ -3,3 +3,8 @@ node_modules/
 
 .vercel
 _imgcheck/
+
+# Material fuente de productos (ya incorporado al sitio, no se publica tal cual)
+*.pdf
+*.jpeg
+*.jpg
