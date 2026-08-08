@@ -134,6 +134,12 @@
   .advisor-photo{width:56px;height:56px;border-radius:50%;flex:none;object-fit:cover;object-position:center top;}
   .advisor-name{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;margin:0;color:var(--ink);}
   .advisor-role{font-size:12.5px;color:var(--slate);margin:3px 0 0;}
+  .advisor-phone{
+    display:inline-flex;align-items:center;gap:6px;margin:6px 0 0;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--teal-deep);
+  }
+  .advisor-phone .icon-phone{width:13px;height:13px;flex:none;}
+  .advisor-phone:hover{color:var(--teal);}
   .results{margin-top:18px;display:flex;flex-direction:column;gap:10px;}
   .result-row{
     display:flex;align-items:center;justify-content:space-between;
@@ -445,6 +451,9 @@
   <symbol id="icon-wsp" viewBox="0 0 16 16">
     <path fill="currentColor" d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.199-.099-1.176-.58-1.358-.647-.182-.065-.315-.099-.448.099-.133.197-.513.647-.627.782-.116.133-.232.148-.43.048-.199-.1-.837-.308-1.596-.985-.59-.525-.985-1.175-1.101-1.372-.116-.198-.011-.304.088-.403.087-.088.199-.232.298-.348.1-.116.133-.198.198-.33.066-.134.033-.248-.016-.347-.05-.099-.448-1.076-.613-1.473-.16-.389-.325-.334-.448-.34-.116-.006-.248-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.472.204.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.336-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
   </symbol>
+  <symbol id="icon-phone" viewBox="0 0 16 16">
+    <path fill="currentColor" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+  </symbol>
 </svg>
 
 <header>
@@ -641,6 +650,10 @@
             <div>
               <p class="advisor-name">Lorena Sotomayor</p>
               <p class="advisor-role">Ejecutiva de Ventas · Bupa Seguros</p>
+              <a class="advisor-phone js-phone-tel" href="tel:+56912345678">
+                <svg class="icon-phone" aria-hidden="true"><use href="#icon-phone"></use></svg>
+                <span class="js-phone-number">+56 9 1234 5678</span>
+              </a>
             </div>
           </div>
           <div class="results">
@@ -1187,6 +1200,9 @@
         });
         document.querySelectorAll('.js-phone-number').forEach(function(el){
           el.textContent = data.celular;
+        });
+        document.querySelectorAll('.js-phone-tel').forEach(function(link){
+          link.setAttribute('href', 'tel:+' + digits);
         });
       })
       .catch(function(err){ console.error('config celular error', err); });
