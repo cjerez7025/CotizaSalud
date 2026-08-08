@@ -60,7 +60,24 @@ function doGet() {
     service: 'CotizaSalud cotizaciones',
     status: 'online',
     celular: config.celular,
+    ejecutiva: getEjecutiva(),
   });
+}
+
+function getEjecutiva() {
+  var ss = getTargetSpreadsheet();
+  var sheet = ss.getSheetByName('Ejecutivos');
+  if (!sheet || sheet.getLastRow() < 2) return null;
+
+  var values = sheet.getDataRange().getValues();
+  var headers = values[0].map(function (h) { return (h || '').toString().trim(); });
+  var row = values[1];
+
+  var obj = {};
+  headers.forEach(function (header, i) {
+    if (header) obj[header] = (row[i] === undefined || row[i] === null) ? '' : row[i].toString();
+  });
+  return obj;
 }
 
 function jsonResponse(body) {

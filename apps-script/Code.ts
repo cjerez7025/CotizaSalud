@@ -97,7 +97,30 @@ function doGet(): GoogleAppsScript.Content.TextOutput {
     service: 'CotizaSalud cotizaciones',
     status: 'online',
     celular: config.celular,
+    ejecutiva: getEjecutiva(),
   });
+}
+
+/**
+ * Lee la primera fila de datos de la hoja "Ejecutivos" y la devuelve como
+ * objeto usando la fila 1 como nombres de columna (tal cual estén escritos
+ * en el Sheet), para que el frontend muestre nombre/cargo/teléfono sin
+ * datos hardcodeados. Por ahora se usa solo una ejecutiva (la primera fila).
+ */
+function getEjecutiva(): Record<string, string> | null {
+  const ss = getTargetSpreadsheet();
+  const sheet = ss.getSheetByName('Ejecutivos');
+  if (!sheet || sheet.getLastRow() < 2) return null;
+
+  const values = sheet.getDataRange().getValues() as string[][];
+  const headers = values[0].map((h) => (h || '').toString().trim());
+  const row = values[1];
+
+  const obj: Record<string, string> = {};
+  headers.forEach((header, i) => {
+    if (header) obj[header] = (row[i] === undefined || row[i] === null) ? '' : row[i].toString();
+  });
+  return obj;
 }
 
 function jsonResponse(body: Record<string, unknown>): GoogleAppsScript.Content.TextOutput {
