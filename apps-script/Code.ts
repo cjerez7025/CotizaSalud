@@ -176,6 +176,11 @@ function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
     'image/png',
     'bupa-logo.png'
   );
+  const instagramIconBlob = Utilities.newBlob(
+    Utilities.base64Decode(INSTAGRAM_ICON_BASE64),
+    'image/png',
+    'instagram-icon.png'
+  );
 
   MailApp.sendEmail({
     to: input.email as string,
@@ -183,7 +188,7 @@ function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
     body,
     htmlBody,
     name: config.remitenteNombre,
-    inlineImages: { bupaLogo: logoBlob },
+    inlineImages: { bupaLogo: logoBlob, instagramIcon: instagramIconBlob },
   });
 }
 
@@ -211,7 +216,7 @@ function buildSignatureHtml(
       <tr><td style="font-size:13px;color:#4C6478;padding:3px 0;">✉️&nbsp; <a href="mailto:${correo}" style="color:#4C6478;text-decoration:none;">${correo}</a></td></tr>
       <tr><td style="font-size:13px;color:#25D366;padding:3px 0;">💬&nbsp; <a href="https://wa.me/${waDigits}" style="color:#25D366;text-decoration:none;">${telefono}</a></td></tr>
       <tr><td style="padding:12px 0 10px;"><img src="cid:bupaLogo" width="88" alt="Bupa Seguros" style="display:block;border:0;"></td></tr>
-      <tr><td style="font-size:13px;color:#C13584;padding:3px 0;">📷&nbsp; <a href="https://instagram.com/${instagram}" style="color:#C13584;text-decoration:none;">${instagram}</a></td></tr>
+      <tr><td style="font-size:13px;color:#C13584;padding:3px 0;"><a href="https://instagram.com/${instagram}" style="color:#C13584;text-decoration:none;"><img src="cid:instagramIcon" width="16" height="16" alt="Instagram" style="vertical-align:middle;border:0;">&nbsp; ${instagram}</a></td></tr>
     </table>
   `;
 }
