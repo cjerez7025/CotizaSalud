@@ -103,7 +103,7 @@ function appendCotizacion(input) {
 
 function sendClientEmail(input, config) {
   var nombre = input.nombre || 'Cliente';
-  var lines = [
+  var bodyLines = [
     'Hola ' + nombre + ',',
     '',
     'Gracias por cotizar tu seguro de salud con nosotros. Recibimos tus datos y te contactaremos en menos de 24 horas con una propuesta personalizada.',
@@ -116,15 +116,53 @@ function sendClientEmail(input, config) {
     'Si tienes urgencia, puedes escribirnos directo por WhatsApp.',
     '',
     'Saludos,',
-    config.remitenteNombre,
   ].filter(function (line) { return line !== ''; });
+
+  var ejecutiva = getEjecutiva();
+  var plainSignature = (ejecutiva && ejecutiva['nombre']) ? ejecutiva['nombre'] : config.remitenteNombre;
+  var body = bodyLines.concat(plainSignature).join('\n');
+
+  var htmlBody =
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0A2A43;line-height:1.55;">' +
+    bodyLines.map(function (line) {
+      return line === '' ? '<br>' : '<p style="margin:0 0 4px;">' + line + '</p>';
+    }).join('') +
+    buildSignatureHtml(ejecutiva, config) +
+    '</div>';
+
+  var logoBlob = Utilities.newBlob(
+    Utilities.base64Decode(BUPA_LOGO_BASE64),
+    'image/png',
+    'bupa-logo.png'
+  );
 
   MailApp.sendEmail({
     to: input.email,
     subject: config.asuntoCliente,
-    body: lines.join('\n'),
+    body: body,
+    htmlBody: htmlBody,
     name: config.remitenteNombre,
+    inlineImages: { bupaLogo: logoBlob },
   });
+}
+
+function buildSignatureHtml(ejecutiva, config) {
+  var nombre = (ejecutiva && ejecutiva['nombre']) || config.remitenteNombre;
+  var cargo = (ejecutiva && ejecutiva['cargo']) || '';
+  var correo = (ejecutiva && ejecutiva['correo']) || config.adminEmail;
+  var telefono = (ejecutiva && ejecutiva['telefono']) || config.celular;
+  var instagram = (ejecutiva && ejecutiva['instagram']) || 'bupa_lorena_sotomayor';
+  var waDigits = telefono.toString().replace(/[^0-9]/g, '');
+
+  return '' +
+    '<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,Helvetica,sans-serif;margin-top:22px;padding-top:14px;border-top:2px solid #0079C8;max-width:340px;">' +
+    '<tr><td style="font-weight:bold;font-size:15px;color:#0A2A43;padding-bottom:2px;">' + nombre + '</td></tr>' +
+    (cargo ? '<tr><td style="font-size:11px;letter-spacing:.06em;color:#0079C8;font-weight:bold;padding-bottom:10px;">' + cargo.toUpperCase() + '</td></tr>' : '') +
+    '<tr><td style="font-size:13px;color:#4C6478;padding:3px 0;">✉️&nbsp; <a href="mailto:' + correo + '" style="color:#4C6478;text-decoration:none;">' + correo + '</a></td></tr>' +
+    '<tr><td style="font-size:13px;color:#25D366;padding:3px 0;">💬&nbsp; <a href="https://wa.me/' + waDigits + '" style="color:#25D366;text-decoration:none;">' + telefono + '</a></td></tr>' +
+    '<tr><td style="padding:12px 0 10px;"><img src="cid:bupaLogo" width="88" alt="Bupa Seguros" style="display:block;border:0;"></td></tr>' +
+    '<tr><td style="font-size:13px;color:#C13584;padding:3px 0;">📷&nbsp; <a href="https://instagram.com/' + instagram + '" style="color:#C13584;text-decoration:none;">' + instagram + '</a></td></tr>' +
+    '</table>';
 }
 
 function sendAdminEmail(input, config) {

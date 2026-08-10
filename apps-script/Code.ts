@@ -146,7 +146,7 @@ function appendCotizacion(input: CotizacionInput): void {
 
 function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
   const nombre = input.nombre || 'Cliente';
-  const body = [
+  const bodyLines = [
     `Hola ${nombre},`,
     '',
     'Gracias por cotizar tu seguro de salud con nosotros. Recibimos tus datos y te contactaremos en menos de 24 horas con una propuesta personalizada.',
@@ -159,17 +159,61 @@ function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
     'Si tienes urgencia, puedes escribirnos directo por WhatsApp.',
     '',
     'Saludos,',
-    config.remitenteNombre,
-  ]
-    .filter((line) => line !== '')
-    .join('\n');
+  ].filter((line) => line !== '');
+
+  const ejecutiva = getEjecutiva();
+  const plainSignature = ejecutiva && ejecutiva['nombre'] ? ejecutiva['nombre'] : config.remitenteNombre;
+  const body = bodyLines.concat(plainSignature).join('\n');
+
+  const htmlBody =
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0A2A43;line-height:1.55;">' +
+    bodyLines.map((line) => (line === '' ? '<br>' : `<p style="margin:0 0 4px;">${line}</p>`)).join('') +
+    buildSignatureHtml(ejecutiva, config) +
+    '</div>';
+
+  const logoBlob = Utilities.newBlob(
+    Utilities.base64Decode(BUPA_LOGO_BASE64),
+    'image/png',
+    'bupa-logo.png'
+  );
 
   MailApp.sendEmail({
     to: input.email as string,
     subject: config.asuntoCliente,
     body,
+    htmlBody,
     name: config.remitenteNombre,
+    inlineImages: { bupaLogo: logoBlob },
   });
+}
+
+/**
+ * Firma en HTML para el correo del cliente, con los datos de la ejecutiva
+ * (hoja "Ejecutivos") y el logo de Bupa embebido. El handle de Instagram se
+ * lee de la columna "instagram" del Sheet; si está vacía, usa un valor por
+ * defecto para no dejar la firma sin ese dato.
+ */
+function buildSignatureHtml(
+  ejecutiva: Record<string, string> | null,
+  config: ConfigValues
+): string {
+  const nombre = (ejecutiva && ejecutiva['nombre']) || config.remitenteNombre;
+  const cargo = (ejecutiva && ejecutiva['cargo']) || '';
+  const correo = (ejecutiva && ejecutiva['correo']) || config.adminEmail;
+  const telefono = (ejecutiva && ejecutiva['telefono']) || config.celular;
+  const instagram = (ejecutiva && ejecutiva['instagram']) || 'bupa_lorena_sotomayor';
+  const waDigits = telefono.toString().replace(/[^0-9]/g, '');
+
+  return `
+    <table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,Helvetica,sans-serif;margin-top:22px;padding-top:14px;border-top:2px solid #0079C8;max-width:340px;">
+      <tr><td style="font-weight:bold;font-size:15px;color:#0A2A43;padding-bottom:2px;">${nombre}</td></tr>
+      ${cargo ? `<tr><td style="font-size:11px;letter-spacing:.06em;color:#0079C8;font-weight:bold;padding-bottom:10px;">${cargo.toUpperCase()}</td></tr>` : ''}
+      <tr><td style="font-size:13px;color:#4C6478;padding:3px 0;">✉️&nbsp; <a href="mailto:${correo}" style="color:#4C6478;text-decoration:none;">${correo}</a></td></tr>
+      <tr><td style="font-size:13px;color:#25D366;padding:3px 0;">💬&nbsp; <a href="https://wa.me/${waDigits}" style="color:#25D366;text-decoration:none;">${telefono}</a></td></tr>
+      <tr><td style="padding:12px 0 10px;"><img src="cid:bupaLogo" width="88" alt="Bupa Seguros" style="display:block;border:0;"></td></tr>
+      <tr><td style="font-size:13px;color:#C13584;padding:3px 0;">📷&nbsp; <a href="https://instagram.com/${instagram}" style="color:#C13584;text-decoration:none;">${instagram}</a></td></tr>
+    </table>
+  `;
 }
 
 function sendAdminEmail(input: CotizacionInput, config: ConfigValues): void {
