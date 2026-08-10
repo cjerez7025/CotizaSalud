@@ -209,12 +209,14 @@ function getConfig(): ConfigValues {
     if (key) map[key] = value;
   });
 
+  const ejecutiva = getEjecutiva();
+
   return {
-    adminEmail: map['adminemail'] || CONFIG_DEFAULTS.adminEmail,
+    adminEmail: (ejecutiva && ejecutiva['correo']) || map['adminemail'] || CONFIG_DEFAULTS.adminEmail,
     remitenteNombre: map['remitentenombre'] || CONFIG_DEFAULTS.remitenteNombre,
     asuntoCliente: map['asuntocliente'] || CONFIG_DEFAULTS.asuntoCliente,
     asuntoAdmin: map['asuntoadmin'] || CONFIG_DEFAULTS.asuntoAdmin,
-    celular: map['celular'] || CONFIG_DEFAULTS.celular,
+    celular: (ejecutiva && ejecutiva['telefono']) || map['celular'] || CONFIG_DEFAULTS.celular,
   };
 }
 
