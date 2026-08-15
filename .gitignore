@@ -9,3 +9,4 @@ _imgcheck/
 /*.jpeg
 /*.jpg
 _pdfimg/
+.env*
