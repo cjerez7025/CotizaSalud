@@ -100,13 +100,21 @@ for apple-touch-icon, 1200x630 for an OG card with padding/background).
 OG card (needs an opaque background — use `--ink` or `--paper`).
 
 **Gotchas hit before, worth avoiding again:**
-- Use `waitUntil: 'domcontentloaded'` (not `'load'`) if the page also
-  pulls the Google Fonts `<link>` — this sandbox has no general
-  outbound internet, so waiting on that request to finish hangs until
-  timeout. `setContent()` sidesteps this entirely for a standalone SVG.
-- Chrome launches here are occasionally flaky (intermittent
-  navigation timeouts even against a local file/server) — retry once
-  or twice before assuming something's actually broken.
+- Navigating the real `index_13.html` (not a standalone `setContent()`
+  page) reliably hangs on `page.goto()` — even with
+  `waitUntil: 'domcontentloaded'` — because the Google Fonts
+  `<link rel="stylesheet">` in `<head>` blocks the parser from running
+  the `<script>` tags that follow it, and this sandbox has no general
+  outbound internet, so that request never resolves, it just hangs
+  until Chrome's own connection timeout. Fix: abort it at the network
+  layer before it can hang anything —
+  `await page.route(/fonts\.(googleapis|gstatic)\.com|images\.pexels\.com/, r => r.abort());`
+  — set this up *before* `page.goto()`. With it in place, navigation
+  is near-instant and reliable. `setContent()` sidesteps the whole
+  issue for a standalone SVG preview (no external `<link>` involved).
+- Chrome launches here are occasionally flaky for unrelated reasons
+  even with the route block in place — retry once or twice before
+  assuming something's actually broken.
 - Kill the browser process (`await browser.close()`) every run; don't
   leave headless instances running.
 

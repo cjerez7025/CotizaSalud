@@ -222,7 +222,7 @@
   .slide-overlay-11{background:linear-gradient(180deg,rgba(0,90,148,.2),rgba(0,90,148,.46));}
   .slide-content{
     position:relative;z-index:2;max-width:390px;
-    background:rgba(255,255,255,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    background:rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border-radius:16px;padding:28px 30px;box-shadow:0 16px 40px rgba(10,42,67,.18);
   }
   .slide-eyebrow{
@@ -459,8 +459,10 @@
     .plan-panel.active, .plans-grid{grid-template-columns:1fr;}
   }
   @media (max-width:760px){
-    nav.links, .nav-phone{display:none;}
+    nav.links, .nav-phone, .nav-actions .btn-primary{display:none;}
     .burger{display:block;}
+    .logo{font-size:16px;gap:8px;}
+    .logo .mark{width:28px;height:28px;}
     .mobile-menu{
       display:flex;flex-direction:column;gap:2px;padding:0 24px;
       max-height:0;overflow:hidden;transition:max-height .3s ease;
@@ -472,9 +474,9 @@
     .field-row{grid-template-columns:1fr;}
     .form-grid{grid-template-columns:1fr;}
     .logos-strip .wrap{flex-direction:column;align-items:flex-start;}
-    .slide{padding:0;min-height:400px;align-items:flex-end;}
+    .slide{padding:0;min-height:480px;align-items:flex-end;}
     .slide-content{
-      margin:150px 14px 14px;padding:18px 18px 20px;max-width:100%;
+      margin:0 14px 20px;padding:18px 18px 20px;max-width:100%;
       border-radius:14px;
     }
     .slide-eyebrow{font-size:10.5px;padding:4px 11px;margin-bottom:10px;}
