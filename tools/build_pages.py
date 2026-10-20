@@ -26,7 +26,9 @@ from plans_meta import SLUGS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SITE = 'https://cotizasaludchile.cl'
-TODAY = '2026-10-19'
+import datetime
+TODAY = datetime.date.today().isoformat()      # fecha de generacion (lastmod / dateModified)
+GUIDE_PUBLISHED = '2026-10-19'
 GUIDE_SLUG = 'isapre-vs-fonasa-seguro-complementario'
 
 
@@ -66,13 +68,18 @@ PLAN_COPY = {
     'proteccion-80-70': dict(
         display='Bupa + Protección 80/70',
         who='Es exclusivo para afiliados a Fonasa.',
-        fit='Es para afiliados a Fonasa que quieren cobertura hospitalaria alta (80%) y ambulatoria (70%) sobre el copago, con atención en Clínica Bupa Santiago y en la red IntegraMédica. Incluye extensión catastrófica y seguro de vida por muerte accidental. Si prefieres 70% también en hospitalización, revisa + Protección 70/70.',
-        related=['proteccion-70-70', 'multisalud', 'proteccion-ambulatorio-70']),
+        fit='Es para afiliados a Fonasa que quieren cobertura hospitalaria alta (80%) y ambulatoria (70%) sin deducible mientras dure la promoción, con atención en Clínica Bupa Santiago y en la red IntegraMédica. Incluye extensión catastrófica y seguro de vida por muerte accidental. Si prefieres 70% también en hospitalización, revisa + Protección 70/70.',
+        related=['proteccion-70-70', 'proteccion-70-25', 'multisalud']),
     'proteccion-70-70': dict(
         display='Bupa + Protección 70/70',
         who='Es exclusivo para afiliados a Fonasa.',
         fit='Tiene la misma estructura que + Protección 80/70, pero con 70% de cobertura tanto hospitalaria como ambulatoria. Es para afiliados a Fonasa que buscan una cobertura pareja, con extensión catastrófica y seguro de vida incluido. Quienes contratan hasta el 31 de diciembre de 2026 tienen una promoción sin deducible.',
-        related=['proteccion-80-70', 'proteccion-ambulatorio-70', 'multisalud']),
+        related=['proteccion-80-70', 'proteccion-70-25', 'proteccion-ambulatorio-70']),
+    'proteccion-70-25': dict(
+        display='Bupa + Protección 70/25',
+        who='Es exclusivo para afiliados a Fonasa.',
+        fit='Tiene la misma estructura que + Protección 80/70 y 70/70 (base de salud hasta UF 500, extensión catastrófica hasta UF 9.500 y seguro de vida incluido), con 70% de cobertura hospitalaria y 25% ambulatoria. Es para afiliados a Fonasa que priorizan tener respaldo ante una hospitalización y usan poco la atención ambulatoria.',
+        related=['proteccion-70-70', 'proteccion-80-70', 'proteccion-ambulatorio-70']),
     'proteccion-ambulatorio-70': dict(
         display='Bupa + Protección Ambulatorio 70',
         who='Es exclusivo para afiliados a Fonasa y cubre solo atención ambulatoria.',
@@ -119,7 +126,7 @@ HUB_GROUPS = [
     ('Isapre o Fonasa', 'Planes que pueden contratar afiliados a cualquiera de los dos sistemas (Fonasa, tramos B, C o D).',
      ['cuidado-total-70', 'cuidado-total-80', 'cuidado-total-60', 'seguro-catastrofico', 'integramedica-100']),
     ('Exclusivos para Fonasa', 'Planes pensados para afiliados a Fonasa.',
-     ['proteccion-80-70', 'proteccion-70-70', 'proteccion-ambulatorio-70', 'multisalud']),
+     ['proteccion-80-70', 'proteccion-70-70', 'proteccion-70-25', 'proteccion-ambulatorio-70', 'multisalud']),
     ('Si ya tienes Isapre', 'Un seguro que cubre el copago de tu plan actual.', ['complementa']),
     ('Adultos mayores', 'Cobertura desde los 60 años.', ['adulto-mayor-integramedica-70', 'bupa-60-mas']),
     ('Salud dental', 'Descuentos y limpieza anual en la red dental IntegraMédica.', ['mi-dental-integramedica']),
@@ -549,7 +556,7 @@ ARTICLE = '''<section class="page-hero" style="padding-bottom:32px;">
 
     <h2>Qué seguro complementario va con cada sistema</h2>
     <ul class="bullets">
-      <li><strong>Si estás en Fonasa:</strong> existen planes exclusivos, como <a href="/planes/proteccion-80-70/">+ Protección 80/70</a>, <a href="/planes/proteccion-70-70/">+ Protección 70/70</a>, <a href="/planes/proteccion-ambulatorio-70/">+ Protección Ambulatorio 70</a> y <a href="/planes/multisalud/">MultiSalud</a> (tramos B, C o D).</li>
+      <li><strong>Si estás en Fonasa:</strong> existen planes exclusivos, como <a href="/planes/proteccion-80-70/">+ Protección 80/70</a>, <a href="/planes/proteccion-70-70/">+ Protección 70/70</a>, <a href="/planes/proteccion-70-25/">+ Protección 70/25</a>, <a href="/planes/proteccion-ambulatorio-70/">+ Protección Ambulatorio 70</a> y <a href="/planes/multisalud/">MultiSalud</a> (tramos B, C o D).</li>
       <li><strong>Si ya tienes Isapre:</strong> <a href="/planes/complementa/">Bupa Complementa</a> cubre el copago al mismo porcentaje que tu plan actual y no tiene deducible. Es exclusivo para afiliados a Isapre y se contrata con declaración de salud.</li>
       <li><strong>En cualquiera de los dos (en Fonasa, tramos B, C o D):</strong> <a href="/planes/cuidado-total-70/">Cuidado Total 70</a>, <a href="/planes/cuidado-total-80/">80</a> y <a href="/planes/cuidado-total-60/">60</a>, el <a href="/planes/seguro-catastrofico/">Seguro Catastrófico</a> y el <a href="/planes/integramedica-100/">Plan IntegraMédica 100%</a>, que no pide declaración de salud.</li>
       <li><strong>Desde los 60 años:</strong> <a href="/planes/adulto-mayor-integramedica-70/">Adulto Mayor IntegraMédica 70</a> y <a href="/planes/bupa-60-mas/">Bupa 60+</a>, que no pide declaración de salud.</li>
@@ -582,7 +589,7 @@ def build_article():
         breadcrumb_ld([('Inicio', '/'), ('Isapre vs Fonasa', path)]),
         ld({'@context': 'https://schema.org', '@type': 'Article',
             'headline': 'Isapre vs Fonasa: qué conviene y cómo te ayuda un seguro complementario',
-            'description': desc, 'datePublished': TODAY, 'dateModified': TODAY, 'inLanguage': 'es-CL',
+            'description': desc, 'datePublished': GUIDE_PUBLISHED, 'dateModified': TODAY, 'inLanguage': 'es-CL',
             'mainEntityOfPage': SITE + path,
             'image': SITE + '/images/plans/cuidado-total-70.jpg',
             'author': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},

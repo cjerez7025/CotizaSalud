@@ -7,6 +7,14 @@ Si Bupa cambia una ficha, se edita aqui y se vuelve a correr build_pages.py.
 # Planes que no estaban en el sitio original. Se agregan a index_13.html (fichas)
 # y tienen su propia pagina. Los datos de plan salen de aqui.
 NEW_PLANS = {
+    'proteccion-70-25': dict(
+        name='+ Protección 70/25', tag='Exclusivo Fonasa',
+        feats=['70% hospitalario y 25% ambulatorio, sin deducible',
+               'Extensión catastrófica hasta UF 9.500',
+               'Incluye seguro de vida por muerte accidental (UF 500)'],
+        price_label='Tope anual', price='UF 500 /año',
+        img='images/plans/proteccion-70-70.jpg', eyebrow='Exclusivo Fonasa',
+        blurb='70% de cobertura hospitalaria y 25% ambulatoria, sin deducible, con extensión catastrófica hasta UF 9.500 y seguro de vida incluido.'),
     'cuidado-total-80': dict(
         name='Cuidado Total 80', tag='Libre elección · Isapre o Fonasa',
         feats=['80% de bonificación en clínicas de libre elección',
@@ -145,13 +153,13 @@ _PROT_REQ = [
 ]
 
 
-def _prot(hosp, promo_txt, ded_txt):
+def _prot(hosp, amb, promo_txt, ded_txt):
     return dict(
         pol='POL320220199',
         rows=[
             ('Seguro Base de Salud', 'Tope anual por beneficiario de UF 500'),
             ('Hospitalización y cirugías', '%s%% sobre el copago' % hosp),
-            ('Atención ambulatoria (consultas, exámenes, imagenología, procedimientos)', '70% sobre el copago'),
+            ('Atención ambulatoria (consultas, exámenes, imagenología, procedimientos)', '%s%% sobre el copago' % amb),
             ('Consultas de urgencia', 'Incluidas (en Clínica Bupa Santiago)'),
             ('Maternidad, oncología, prótesis y órtesis, ambulancia terrestre (hasta 50 km)', 'Incluidas'),
             ('Extensión catastrófica', '100% sobre el copago hasta UF 9.500 al año, una vez consumido el tope base'),
@@ -173,12 +181,16 @@ def _prot(hosp, promo_txt, ded_txt):
     )
 
 
-DETAIL['proteccion-80-70'] = _prot(
-    80,
-    'La ficha comercial de este plan indicaba una promoción "sin deducible" válida hasta el 31 de diciembre de 2025. Consulta si hay una promoción vigente.',
+_PROMO_VIGENTE = 'Promoción vigente: seguro sin deducible. Sin la promoción, el deducible es de UF 0,5 al año por beneficiario en cobertura ambulatoria y UF 5 al año en cobertura hospitalaria y cirugías.'
+_DED_PROMO = 'Sin deducible con la promoción vigente (sin ella: UF 0,5 ambulatorio y UF 5 hospitalario al año)'
+
+DETAIL['proteccion-80-70'] = _prot(80, 70, _PROMO_VIGENTE,
     'Deducible: UF 0,5 al año por beneficiario en cobertura ambulatoria y UF 5 al año en cobertura hospitalaria y cirugías.')
-DETAIL['proteccion-70-70'] = _prot(
-    70,
+DETAIL['proteccion-80-70']['ded'] = _DED_PROMO
+DETAIL['proteccion-70-25'] = _prot(70, 25, _PROMO_VIGENTE,
+    'Deducible: UF 0,5 al año por beneficiario en cobertura ambulatoria y UF 5 al año en cobertura hospitalaria y cirugías.')
+DETAIL['proteccion-70-25']['ded'] = _DED_PROMO
+DETAIL['proteccion-70-70'] = _prot(70, 70,
     'Promoción vigente en la ficha comercial: si contratas hasta el 31 de diciembre de 2026, tu seguro queda sin deducible.',
     'Deducible: UF 0,5 al año por beneficiario en cobertura ambulatoria y UF 5 al año en cobertura hospitalaria y cirugías.')
 DETAIL['proteccion-70-70']['ded'] = 'UF 0,5 ambulatorio y UF 5 hospitalario al año; sin deducible si contratas hasta el 31/12/2026'
