@@ -21,7 +21,7 @@ def extract(src):
     by_slide = {}
     for slug, s in zip(SLIDE_SLUGS, slides):
         by_slide[slug] = dict(
-            img=re.search(r'<img class="slide-bg" src="([^"]+)"', s).group(1),
+            img=re.sub(r'-1200\.webp$', '.jpg', re.search(r'<img class="slide-bg" src="([^"]+)"', s).group(1)),
             eyebrow=clean(re.search(r'class="slide-eyebrow">(.*?)</span>', s, re.S).group(1)),
             title=clean(re.search(r'<h3>(.*?)</h3>', s, re.S).group(1)),
             blurb=clean(re.search(r'<p>(.*?)</p>', s, re.S).group(1)))

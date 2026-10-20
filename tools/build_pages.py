@@ -22,7 +22,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extract_plans import extract
 from plan_details import DETAIL, NEW_PLANS
-from plans_meta import SLUGS
+from plans_meta import SLUGS, IMAGE_ALT
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SITE = 'https://cotizasaludchile.cl'
@@ -438,7 +438,7 @@ def build_plan(plan, slug, by_slug):
       <div class="ph-price"><span class="from">{label}</span><span class="amt">{price}</span></div>
       {ctas}
     </div>
-    <div class="ph-img"><img src="/{img}" alt="{alt}" width="1050" height="700" loading="eager"></div>
+    <div class="ph-img"><img src="/{img}-1200.webp" srcset="/{img}-640.webp 640w, /{img}-1200.webp 1200w" sizes="(max-width: 980px) 100vw, 520px" alt="{alt}" width="1200" height="800" loading="eager" fetchpriority="high"></div>
   </div>
 </section>
 <section class="page-body">
@@ -470,7 +470,7 @@ def build_plan(plan, slug, by_slug):
 </section>'''.format(
         crumbs=crumbs([('Inicio', '/'), ('Planes', '/planes/'), (d, None)]),
         eyebrow=esc(plan['eyebrow']), h1=esc('%s: qué cubre y cómo cotizarlo' % d), blurb=esc(lead),
-        label=esc(plan['price_label']), price=esc(price), ctas=ctas(), img=plan['img'], alt=attr('%s, seguro de salud Bupa' % d),
+        label=esc(plan['price_label']), price=esc(price), ctas=ctas(), img=plan['img'][:-4], alt=attr(IMAGE_ALT.get(plan['img'], '%s, seguro de salud Bupa' % d)),
         name=esc(d), feats=feats, fit=esc(c['fit']), detail=detail_html(det, d), faqs=faq_html,
         disclaimer=disclaimer(det.get('pol') if det else None),
         facts=''.join(facts), related=related, band=cta_band(d))
