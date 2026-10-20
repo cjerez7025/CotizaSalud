@@ -21,6 +21,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from extract_plans import extract
+from guides import GUIDES
 from plan_details import DETAIL, NEW_PLANS
 from plans_meta import SLUGS, IMAGE_ALT
 
@@ -351,6 +352,12 @@ def table(head, rows):
     return '<div class="table-scroll"><table class="cmp-table"><thead><tr><th>%s</th><th>%s</th></tr></thead><tbody>%s</tbody></table></div>' % (esc(head[0]), esc(head[1]), body)
 
 
+def table3(head, rows):
+    th = ''.join('<th>%s</th>' % esc(h) for h in head)
+    body = ''.join('<tr>%s</tr>' % ''.join('<td>%s</td>' % esc(c) for c in r) for r in rows)
+    return '<div class="table-scroll"><table class="cmp-table"><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>' % (th, body)
+
+
 def bullets(items):
     return '<ul class="bullets">%s</ul>' % ''.join('<li>%s</li>' % esc(i) for i in items)
 
@@ -359,6 +366,9 @@ def detail_html(d, name):
     if not d:
         return ''
     out = ['<h2>Coberturas y topes de %s</h2>' % esc(name), table(('Cobertura', 'Detalle'), d['rows'])]
+    if d.get('ejemplo'):
+        ej = d['ejemplo']
+        out += ['<h2>%s</h2>' % esc(ej['title']), table3(ej['head'], ej['rows']), '<p class="article-meta">%s</p>' % esc(ej['note'])]
     if d.get('tarifas'):
         t = d['tarifas']
         out += ['<h2>%s de %s</h2>' % (esc(t['title']), esc(name)), table(t['head'], t['rows']),
@@ -369,6 +379,28 @@ def detail_html(d, name):
         out += ['<h2>Beneficios adicionales</h2>', bullets(d['adicionales'])]
     out += ['<h2>Qué no cubre</h2>', bullets(d['exclusiones'])]
     return '\n        '.join(out)
+
+
+GUIDE_COPAGO = 'copago-salud-como-reducirlo'
+GUIDE_ADULTOS = 'seguro-salud-adultos-mayores-preexistencias'
+GUIDE_CAT = 'seguro-catastrofico-cuando-conviene'
+GUIDE_LINKS = {
+    'cuidado-total-70': [GUIDE_COPAGO], 'cuidado-total-80': [GUIDE_COPAGO], 'cuidado-total-60': [GUIDE_COPAGO],
+    'seguro-catastrofico': [GUIDE_CAT, GUIDE_COPAGO],
+    'proteccion-80-70': [GUIDE_COPAGO], 'proteccion-70-70': [GUIDE_COPAGO, GUIDE_CAT], 'proteccion-70-25': [GUIDE_COPAGO],
+    'proteccion-ambulatorio-70': [GUIDE_COPAGO], 'multisalud': [GUIDE_CAT], 'complementa': [GUIDE_COPAGO],
+    'integramedica-100': [GUIDE_ADULTOS, GUIDE_COPAGO], 'adulto-mayor-integramedica-70': [GUIDE_ADULTOS],
+    'bupa-60-mas': [GUIDE_ADULTOS], 'mi-dental-integramedica': [GUIDE_ADULTOS],
+}
+
+
+def guides_block(slug):
+    links = GUIDE_LINKS.get(slug)
+    if not links:
+        return ''
+    titles = {g['slug']: g['h1'] for g in GUIDES}
+    items = ''.join('<li><a href="/guias/%s/">%s</a></li>' % (g, esc(titles[g])) for g in links)
+    return '<h2>Guías relacionadas</h2><ul class="bullets">%s</ul>' % items
 
 
 def build_plan(plan, slug, by_slug):
@@ -471,7 +503,7 @@ def build_plan(plan, slug, by_slug):
         crumbs=crumbs([('Inicio', '/'), ('Planes', '/planes/'), (d, None)]),
         eyebrow=esc(plan['eyebrow']), h1=esc('%s: qué cubre y cómo cotizarlo' % d), blurb=esc(lead),
         label=esc(plan['price_label']), price=esc(price), ctas=ctas(), img=plan['img'][:-4], alt=attr(IMAGE_ALT.get(plan['img'], '%s, seguro de salud Bupa' % d)),
-        name=esc(d), feats=feats, fit=esc(c['fit']), detail=detail_html(det, d), faqs=faq_html,
+        name=esc(d), feats=feats, fit=esc(c['fit']), detail=detail_html(det, d) + guides_block(slug), faqs=faq_html,
         disclaimer=disclaimer(det.get('pol') if det else None),
         facts=''.join(facts), related=related, band=cta_band(d))
 
@@ -586,7 +618,7 @@ def build_article():
     title = 'Isapre vs Fonasa: qué conviene y seguro complementario'
     desc = 'Diferencias entre Isapre y Fonasa en Chile y cómo un seguro complementario de salud reduce tus copagos. Guía clara para decidir.'
     jsonld = [
-        breadcrumb_ld([('Inicio', '/'), ('Isapre vs Fonasa', path)]),
+        breadcrumb_ld([('Inicio', '/'), ('Guías', '/guias/'), ('Isapre vs Fonasa', path)]),
         ld({'@context': 'https://schema.org', '@type': 'Article',
             'headline': 'Isapre vs Fonasa: qué conviene y cómo te ayuda un seguro complementario',
             'description': desc, 'datePublished': GUIDE_PUBLISHED, 'dateModified': TODAY, 'inLanguage': 'es-CL',
@@ -595,9 +627,90 @@ def build_article():
             'author': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
             'publisher': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
     ]
-    body = ARTICLE.replace('{crumbs}', crumbs([('Inicio', '/'), ('Guías', None), ('Isapre vs Fonasa', None)])) \
+    body = ARTICLE.replace('{crumbs}', crumbs([('Inicio', '/'), ('Guías', '/guias/'), ('Isapre vs Fonasa', None)])) \
                   .replace('{band}', cta_band('tu seguro complementario'))
     return path, page(title, desc, path, body, jsonld, SITE + '/images/plans/cuidado-total-70.jpg', og_type='article')
+
+
+def es_date(iso):
+    y, m, d = (int(x) for x in iso.split('-'))
+    return '%d de %s de %d' % (d, ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'][m - 1], y)
+
+
+ISAPRE_GUIDE = dict(slug=GUIDE_SLUG, title='Isapre vs Fonasa: qué conviene y seguro complementario',
+                    desc='Diferencias entre Isapre y Fonasa en Chile y cómo un seguro complementario de salud reduce tus copagos. Guía clara para decidir.')
+
+
+def build_guide(g, by_slug):
+    path = '/guias/%s/' % g['slug']
+    content = g['body']()
+    mins = max(2, round(len(re.sub(r'<[^>]+>', ' ', content).split()) / 200))
+    faq_html = ''.join('<details class="faq-item"><summary>%s</summary><p>%s</p></details>' % (esc(q), esc(a)) for q, a in g['faqs'])
+    related = ''.join(
+        '<a class="related-card" href="/planes/%s/"><h3>%s</h3><p>%s</p><span>Ver detalle →</span></a>'
+        % (r, esc(PLAN_COPY[r]['display']), esc(by_slug[r]['tag'])) for r in g['related'])
+    published = g.get('published') or '2026-10-20'
+    jsonld = [
+        breadcrumb_ld([('Inicio', '/'), ('Guías', '/guias/'), (g['title'], path)]),
+        ld({'@context': 'https://schema.org', '@type': 'Article', 'headline': g['h1'], 'description': g['desc'],
+            'datePublished': published, 'dateModified': TODAY, 'inLanguage': 'es-CL', 'mainEntityOfPage': SITE + path,
+            'image': '%s/%s' % (SITE, g['image']),
+            'author': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
+            'publisher': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
+        ld({'@context': 'https://schema.org', '@type': 'FAQPage',
+            'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in g['faqs']]}),
+    ]
+    body = '''<section class="page-hero" style="padding-bottom:32px;">
+  <div class="wrap article-wrap">
+    {crumbs}
+    <span class="eyebrow">Guía</span>
+    <h1>{h1}</h1>
+    <p class="article-meta">Publicado el {fecha} · Lectura de {mins} minutos</p>
+  </div>
+</section>
+<section class="page-body">
+  <div class="wrap article-wrap prose">
+    {content}
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq-list">{faqs}</div>
+    <h2>Planes relacionados</h2>
+    <div class="related-grid">{related}</div>
+    {disclaimer}
+    {band}
+  </div>
+</section>'''.format(
+        crumbs=crumbs([('Inicio', '/'), ('Guías', '/guias/'), (g['title'], None)]), h1=esc(g['h1']), fecha=es_date(published),
+        mins=mins, content=content, faqs=faq_html, related=related, disclaimer=disclaimer(), band=cta_band('tu seguro de salud'))
+    return path, page(g['title'] + ' | CotizaSalud Chile' if len(g['title']) < 45 else g['title'], g['desc'], path, body, jsonld,
+                      '%s/%s' % (SITE, g['image']), og_type='article')
+
+
+def build_guides_hub():
+    path = '/guias/'
+    items = [ISAPRE_GUIDE] + [dict(slug=g['slug'], title=g['h1'], desc=g['desc']) for g in GUIDES]
+    cards = ''.join('<a class="related-card" href="/guias/%s/"><h3>%s</h3><p>%s</p><span>Leer guía →</span></a>'
+                    % (i['slug'], esc(i['title']), esc(i['desc'])) for i in items)
+    jsonld = [breadcrumb_ld([('Inicio', '/'), ('Guías', path)]),
+              ld({'@context': 'https://schema.org', '@type': 'ItemList', 'name': 'Guías de seguros de salud en Chile',
+                  'itemListElement': [{'@type': 'ListItem', 'position': n + 1, 'name': i['title'], 'url': '%s/guias/%s/' % (SITE, i['slug'])}
+                                      for n, i in enumerate(items)]})]
+    body = '''<section class="page-hero" style="padding-bottom:32px;">
+  <div class="wrap">
+    {crumbs}
+    <span class="eyebrow">Guías</span>
+    <h1>Guías de seguros de salud en Chile</h1>
+    <p class="lead">Explicaciones claras para decidir mejor: cómo se combinan Isapre y Fonasa con un seguro complementario, qué es el copago, el seguro catastrófico y las opciones para adultos mayores.</p>
+  </div>
+</section>
+<section class="page-body">
+  <div class="wrap">
+    <div class="related-grid">{cards}</div>
+    {band}
+  </div>
+</section>'''.format(crumbs=crumbs([('Inicio', '/'), ('Guías', None)]), cards=cards, band=cta_band('tu seguro de salud'))
+    return path, page('Guías de seguros de salud en Chile | CotizaSalud Chile',
+                      'Guías sobre Isapre y Fonasa, copago, seguro catastrófico y seguros para adultos mayores y preexistencias en Chile.',
+                      path, body, jsonld, SITE + '/images/plans/cuidado-total-70.jpg')
 
 
 def build_sitemap(paths):
@@ -641,6 +754,11 @@ if __name__ == '__main__':
         write(p + 'index.html', html_); paths.append(p)
     p, html_ = build_article()
     write(p + 'index.html', html_); paths.append(p)
+    p, html_ = build_guides_hub()
+    write(p + 'index.html', html_); paths.append(p)
+    for g in GUIDES:
+        p, html_ = build_guide(g, by_slug)
+        write(p + 'index.html', html_); paths.append(p)
 
     write('sitemap.xml', build_sitemap(paths))
     print('ok:', len(paths), 'paginas')

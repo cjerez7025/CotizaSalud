@@ -92,6 +92,17 @@ DETAIL = {}
 DETAIL['cuidado-total-70'] = _ct(70, '400', '1', '0,5', '7', '0,5')
 DETAIL['cuidado-total-60'] = _ct(60, '250', '0,6', '0,3', '5', '0,3')
 DETAIL['cuidado-total-80'] = _ct(80, '600', '1,3', '0,7', '10', '0,7')
+DETAIL['cuidado-total-60']['ejemplo'] = dict(
+    title='Ejemplo de copago',
+    head=('Concepto', 'Caso A: tu Isapre aporta 30%', 'Caso B: tu Isapre aporta 60%'),
+    rows=[('Costo de la consulta', '$50.000', '$50.000'),
+          ('Aporte de la Isapre', '$15.000 (30%)', '$30.000 (60%)'),
+          ('Tu copago antes del seguro', '$35.000', '$20.000'),
+          ('Base del seguro para el reembolso', '$25.000', '$20.000'),
+          ('Reembolso del seguro (60%)', '$15.000', '$12.000'),
+          ('Copago final', '$20.000', '$8.000')],
+    note='Ejemplo de la ficha comercial, con una bonificación mínima de Isapre de 50%. Si el aporte de tu Isapre es menor al 50%, el seguro calcula sobre el costo de la prestación descontando ese porcentaje.',
+)
 
 DETAIL['seguro-catastrofico'] = dict(
     pol='POL320260105',
