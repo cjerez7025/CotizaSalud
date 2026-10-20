@@ -10,3 +10,5 @@ _imgcheck/
 /*.jpg
 _pdfimg/
 .env*
+planes/*.pdf
+__pycache__/

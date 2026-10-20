@@ -21,6 +21,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from extract_plans import extract
+from plan_details import DETAIL, NEW_PLANS
 from plans_meta import SLUGS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -43,29 +44,34 @@ def attr(t):
 PLAN_COPY = {
     'cuidado-total-70': dict(
         display='Bupa Cuidado Total 70',
-        who='Pueden contratarlo afiliados a Isapre o a Fonasa.',
+        who='Pueden contratarlo afiliados a Isapre o a Fonasa (tramos B, C o D).',
         fit='Es el plan más elegido. Te sirve si quieres atenderte en clínicas de libre elección con una bonificación alta (70%), tener consultas y videoconsultas ilimitadas y dejar maternidad, salud mental y urgencias dentro de la cobertura. Si el presupuesto es lo que más pesa, compáralo con Cuidado Total 60.',
-        related=['cuidado-total-60', 'seguro-catastrofico', 'complementa']),
+        related=['cuidado-total-80', 'cuidado-total-60', 'seguro-catastrofico']),
+    'cuidado-total-80': dict(
+        display='Bupa Cuidado Total 80',
+        who='Pueden contratarlo afiliados a Isapre o a Fonasa (tramos B, C o D).',
+        fit='Es el nivel más alto de la línea Cuidado Total: 80% de bonificación en clínicas de libre elección y un tope anual de UF 600, frente a UF 400 del plan 70. Te sirve si quieres la mayor cobertura de la línea y valoras tener consultas y videoconsultas ilimitadas, maternidad, salud mental y urgencias dentro del seguro.',
+        related=['cuidado-total-70', 'cuidado-total-60', 'seguro-catastrofico']),
     'cuidado-total-60': dict(
         display='Bupa Cuidado Total 60',
-        who='Pueden contratarlo afiliados a Isapre o a Fonasa.',
+        who='Pueden contratarlo afiliados a Isapre o a Fonasa (tramos B, C o D).',
         fit='Mantiene la lógica de libre elección y la cobertura de maternidad, salud mental y urgencias del plan 70, con 60% de bonificación y un tope anual menor (UF 250 frente a UF 400). Es la opción si quieres bajar el costo sin cambiar de tipo de plan.',
-        related=['cuidado-total-70', 'seguro-catastrofico', 'proteccion-ambulatorio-70']),
+        related=['cuidado-total-70', 'cuidado-total-80', 'seguro-catastrofico']),
     'seguro-catastrofico': dict(
         display='Seguro Bupa Catastrófico',
-        who='Pueden contratarlo afiliados a Isapre o a Fonasa.',
+        who='Pueden contratarlo afiliados a Isapre o a Fonasa (tramos B, C o D).',
         lead='Cobertura ante enfermedades de alto costo: hasta 100% de cobertura, deducible $0 en 5 patologías graves y hasta UF 30.000 por evento.',
-        fit='Está pensado para el riesgo de alto costo, no para el gasto del día a día: cubre enfermedades graves con hasta UF 30.000 por evento y deducible $0 en 5 patologías. Funciona como una capa de protección sobre tu Isapre o Fonasa. Si además quieres cubrir consultas y exámenes habituales, mira Cuidado Total.',
+        fit='Está pensado para el riesgo de alto costo, no para el gasto del día a día: cubre enfermedades graves con hasta UF 30.000 por evento (hasta los 69 años) y deducible $0 en 5 patologías. Funciona como una capa de protección sobre tu Isapre o Fonasa. Si además quieres cubrir consultas y exámenes habituales, mira Cuidado Total.',
         related=['cuidado-total-70', 'proteccion-80-70', 'multisalud']),
     'proteccion-80-70': dict(
         display='Bupa + Protección 80/70',
         who='Es exclusivo para afiliados a Fonasa.',
-        fit='Es para afiliados a Fonasa que quieren cobertura hospitalaria alta (80%) y ambulatoria (70%) sin deducible, con atención en Clínica Bupa Santiago y en la red IntegraMédica. Incluye extensión catastrófica y seguro de vida por muerte accidental. Si prefieres 70% también en hospitalización, revisa + Protección 70/70.',
+        fit='Es para afiliados a Fonasa que quieren cobertura hospitalaria alta (80%) y ambulatoria (70%) sobre el copago, con atención en Clínica Bupa Santiago y en la red IntegraMédica. Incluye extensión catastrófica y seguro de vida por muerte accidental. Si prefieres 70% también en hospitalización, revisa + Protección 70/70.',
         related=['proteccion-70-70', 'multisalud', 'proteccion-ambulatorio-70']),
     'proteccion-70-70': dict(
         display='Bupa + Protección 70/70',
         who='Es exclusivo para afiliados a Fonasa.',
-        fit='Tiene la misma estructura que + Protección 80/70, pero con 70% de cobertura tanto hospitalaria como ambulatoria. Es para afiliados a Fonasa que buscan una cobertura pareja, sin deducible, con extensión catastrófica y seguro de vida incluido.',
+        fit='Tiene la misma estructura que + Protección 80/70, pero con 70% de cobertura tanto hospitalaria como ambulatoria. Es para afiliados a Fonasa que buscan una cobertura pareja, con extensión catastrófica y seguro de vida incluido. Quienes contratan hasta el 31 de diciembre de 2026 tienen una promoción sin deducible.',
         related=['proteccion-80-70', 'proteccion-ambulatorio-70', 'multisalud']),
     'proteccion-ambulatorio-70': dict(
         display='Bupa + Protección Ambulatorio 70',
@@ -79,12 +85,12 @@ PLAN_COPY = {
         related=['proteccion-80-70', 'proteccion-70-70', 'seguro-catastrofico']),
     'complementa': dict(
         display='Bupa Complementa',
-        who='Está pensado para quienes ya tienen Isapre.',
-        fit='Si ya tienes Isapre y lo que te pesa es el copago, este plan lo cubre al mismo porcentaje que tu plan de Isapre, sin deducible y sin declaración de salud. Incluye hospitalización, oncología y maternidad.',
+        who='Es exclusivo para afiliados a Isapre; no cubre a afiliados a Fonasa.',
+        fit='Si ya tienes Isapre y lo que te pesa es el copago, este plan lo cubre al mismo porcentaje que tu plan de Isapre y no tiene deducible. Incluye hospitalización, oncología y maternidad. Para ingresar se completa una declaración de salud.',
         related=['cuidado-total-70', 'seguro-catastrofico', 'integramedica-100']),
     'integramedica-100': dict(
         display='Plan IntegraMédica 100% de Bupa',
-        who='Pueden contratarlo afiliados a Isapre y a Fonasa, sin declaración de salud (DPS).',
+        who='Pueden contratarlo afiliados a Isapre y a Fonasa (grupos B, C y D), sin declaración de salud (DPS).',
         fit='Está pensado para quien tiene enfermedades preexistentes o no quiere pasar por una declaración de salud. Cubre el 100% del copago en consultas, exámenes e imágenes dentro de la red IntegraMédica, sin deducible.',
         related=['adulto-mayor-integramedica-70', 'complementa', 'cuidado-total-60']),
     'pymes-70-smart': dict(
@@ -96,16 +102,27 @@ PLAN_COPY = {
         display='Plan Adulto Mayor IntegraMédica 70',
         who='Pueden contratarlo personas desde los 60 años, afiliadas a Isapre o a Fonasa.',
         fit='Está pensado para personas desde los 60 años: cubre enfermedades ya diagnosticadas (sin preexistencias), con 70% en consultas, exámenes e imagenología y rescate de riesgo vital 24/7 en todo Chile.',
-        related=['integramedica-100', 'complementa', 'cuidado-total-60']),
+        related=['bupa-60-mas', 'integramedica-100', 'complementa']),
+    'bupa-60-mas': dict(
+        display='Bupa 60+',
+        who='Pueden contratarlo personas desde los 60 años (hasta 84 años y 364 días), afiliadas a Isapre o Fonasa, sin declaración de salud.',
+        fit='Está pensado para mayores de 60 años que quieren cubrir sus atenciones ambulatorias y de urgencia sin pasar por una declaración de salud y sin deducible. Incluye consultas, exámenes, kinesiología y beneficios en farmacias. Cubre la hospitalización solo cuando deriva de una urgencia traumatológica; si buscas una cobertura hospitalaria más amplia, compáralo con Cuidado Total.',
+        related=['adulto-mayor-integramedica-70', 'integramedica-100', 'cuidado-total-70']),
+    'mi-dental-integramedica': dict(
+        display='Mi Dental IntegraMédica 65%',
+        who='Pueden contratarlo personas desde los 18 años (hasta 89 años y 364 días), sin necesidad de pertenecer a un sistema previsional.',
+        fit='Es un plan dental, no un seguro de salud: sirve si quieres cuidar tu salud bucal con una limpieza anual sin costo y descuentos en todos los tratamientos de la red dental IntegraMédica. No pide declaración de salud, no tiene deducible y puedes contratarlo para ti o para terceros.',
+        related=['integramedica-100', 'adulto-mayor-integramedica-70', 'cuidado-total-60']),
 }
 
 HUB_GROUPS = [
-    ('Isapre o Fonasa', 'Planes que pueden contratar afiliados a cualquiera de los dos sistemas.',
-     ['cuidado-total-70', 'cuidado-total-60', 'seguro-catastrofico', 'integramedica-100']),
+    ('Isapre o Fonasa', 'Planes que pueden contratar afiliados a cualquiera de los dos sistemas (Fonasa, tramos B, C o D).',
+     ['cuidado-total-70', 'cuidado-total-80', 'cuidado-total-60', 'seguro-catastrofico', 'integramedica-100']),
     ('Exclusivos para Fonasa', 'Planes pensados para afiliados a Fonasa.',
      ['proteccion-80-70', 'proteccion-70-70', 'proteccion-ambulatorio-70', 'multisalud']),
     ('Si ya tienes Isapre', 'Un seguro que cubre el copago de tu plan actual.', ['complementa']),
-    ('Adultos mayores', 'Cobertura desde los 60 años, sin preexistencias.', ['adulto-mayor-integramedica-70']),
+    ('Adultos mayores', 'Cobertura desde los 60 años.', ['adulto-mayor-integramedica-70', 'bupa-60-mas']),
+    ('Salud dental', 'Descuentos y limpieza anual en la red dental IntegraMédica.', ['mi-dental-integramedica']),
     ('Empresas y pymes', 'Salud para tu equipo, desde 5 colaboradores.', ['pymes-70-smart']),
 ]
 
@@ -310,32 +327,73 @@ def cta_band(name):
             '<p>Cuéntame tu caso y te envío tu propuesta con valores reales en menos de 24 horas, sin compromiso.</p>%s</div>' % (esc(name), ctas('Cotizar ahora')))
 
 
-DISCLAIMER = ('<p class="disclaimer">Información referencial. Valores en UF, sujetos a tu edad y composición familiar. '
-              'Coberturas, topes y condiciones dependen de las condiciones generales y particulares de la póliza vigente de Bupa Seguros.</p>')
+def disclaimer(pol=None):
+    src = 'Información según la ficha comercial de Bupa Seguros'
+    if pol:
+        src += ' (póliza %s, depositada en la Comisión para el Mercado Financiero)' % pol
+    return ('<p class="disclaimer">%s. Valores en UF, sujetos a tu edad y composición familiar. '
+            'Las coberturas, topes y condiciones se rigen por las condiciones generales y particulares de la póliza vigente; '
+            'las promociones tienen fecha de vencimiento. Confirma los datos al cotizar.</p>' % src)
 
 
 # --------------------------------------------------------------------------
 # Paginas
 # --------------------------------------------------------------------------
+def table(head, rows):
+    body = ''.join('<tr><td>%s</td><td>%s</td></tr>' % (esc(a), esc(b)) for a, b in rows)
+    return '<div class="table-scroll"><table class="cmp-table"><thead><tr><th>%s</th><th>%s</th></tr></thead><tbody>%s</tbody></table></div>' % (esc(head[0]), esc(head[1]), body)
+
+
+def bullets(items):
+    return '<ul class="bullets">%s</ul>' % ''.join('<li>%s</li>' % esc(i) for i in items)
+
+
+def detail_html(d, name):
+    if not d:
+        return ''
+    out = ['<h2>Coberturas y topes de %s</h2>' % esc(name), table(('Cobertura', 'Detalle'), d['rows'])]
+    if d.get('tarifas'):
+        t = d['tarifas']
+        out += ['<h2>%s de %s</h2>' % (esc(t['title']), esc(name)), table(t['head'], t['rows']),
+                '<p class="article-meta">%s</p>' % esc(t['note'])]
+    out += ['<h2>Requisitos para contratar</h2>', bullets(d['requisitos']),
+            '<h2>Deducible y condiciones</h2>', bullets(d['condiciones'])]
+    if d.get('adicionales'):
+        out += ['<h2>Beneficios adicionales</h2>', bullets(d['adicionales'])]
+    out += ['<h2>Qué no cubre</h2>', bullets(d['exclusiones'])]
+    return '\n        '.join(out)
+
+
 def build_plan(plan, slug, by_slug):
     c = PLAN_COPY[slug]
     d = c['display']
+    det = DETAIL.get(slug)
     lead = c.get('lead', plan['blurb'])
     path = '/planes/%s/' % slug
     price = price_text(plan['price'])
-    is_from = plan['price_label'].lower() == 'desde'
+    label = plan['price_label'].lower()
     tag_parts = [t.strip() for t in plan['tag'].split('·')]
 
     faqs = [
         ('¿Qué cubre %s?' % d, '%s. Además: %s.' % (lead.rstrip('.'), '; '.join(f[0].lower() + f[1:] for f in plan['feats']))),
         ('¿Quién puede contratar %s?' % d, c['who']),
     ]
-    if is_from:
+    if det and det.get('tarifas'):
+        faqs.append(('¿Cuánto cuesta %s?' % d,
+                     'La tarifa mensual depende de la edad: %s. Son tarifas brutas mensuales en UF.' % '; '.join('%s, %s' % (a, b) for a, b in det['tarifas']['rows'])))
+    elif label == 'desde':
         faqs.append(('¿Cuánto cuesta %s?' % d,
                      'Tiene un valor referencial desde %s. El precio final depende de tu edad y de tu composición familiar; al cotizar recibes los valores reales para tu caso.' % price))
+    elif label == 'descuento':
+        faqs.append(('¿Qué descuento tiene %s?' % d,
+                     'Ofrece %s sobre el arancel IntegraMédica en todos los tratamientos dentales. El valor del plan se informa al cotizar.' % price.replace(' dcto.', '')))
     else:
         faqs.append(('¿Cuál es el tope de cobertura de %s?' % d,
                      'El tope anual es %s. Es el máximo que el plan cubre al año, no el valor de la prima: el costo mensual depende de tu edad y de tu composición familiar, y lo recibes con valores reales al cotizar.' % price))
+    if det and det.get('edades'):
+        faqs.append(('¿Qué edad se exige para contratar %s?' % d, det['edades'] + '.'))
+    if det and det.get('ded'):
+        faqs.append(('¿%s tiene deducible?' % d, det['ded'] + '.'))
 
     jsonld = [
         breadcrumb_ld([('Inicio', '/'), ('Planes', '/planes/'), (d, path)]),
@@ -354,6 +412,14 @@ def build_plan(plan, slug, by_slug):
     related = ''.join(
         '<a class="related-card" href="/planes/%s/"><h3>%s</h3><p>%s</p><span>Ver detalle →</span></a>'
         % (r, esc(PLAN_COPY[r]['display']), esc(by_slug[r]['tag'])) for r in c['related'])
+
+    facts = ['<dt>Se contrata con</dt><dd>%s</dd>' % esc(' · '.join(tag_parts)),
+             '<dt>%s</dt><dd>%s</dd>' % (esc(plan['price_label']), esc(price))]
+    if det and det.get('edades'):
+        facts.append('<dt>Edad de ingreso</dt><dd>%s</dd>' % esc(det['edades']))
+    if det and det.get('ded'):
+        facts.append('<dt>Deducible</dt><dd>%s</dd>' % esc(det['ded']))
+    facts.append('<dt>Cotización</dt><dd>Gratis, con respuesta en menos de 24 horas</dd>')
 
     body = '''<section class="page-hero">
   <div class="wrap ph-grid">
@@ -376,18 +442,14 @@ def build_plan(plan, slug, by_slug):
         <ul class="big-feats">{feats}</ul>
         <h2>¿Es el plan para ti?</h2>
         <p>{fit}</p>
+        {detail}
         <h2>Preguntas frecuentes sobre {name}</h2>
         <div class="faq-list">{faqs}</div>
         {disclaimer}
       </div>
       <aside class="facts">
         <h2>Datos clave</h2>
-        <dl>
-          <dt>Se contrata con</dt><dd>{tag}</dd>
-          <dt>{label}</dt><dd>{price}</dd>
-          <dt>Quién puede contratarlo</dt><dd>{who}</dd>
-          <dt>Cotización</dt><dd>Gratis, con respuesta en menos de 24 horas</dd>
-        </dl>
+        <dl>{facts}</dl>
         <a href="/#contacto" class="btn btn-primary">Cotizar este plan</a>
       </aside>
     </div>
@@ -402,8 +464,9 @@ def build_plan(plan, slug, by_slug):
         crumbs=crumbs([('Inicio', '/'), ('Planes', '/planes/'), (d, None)]),
         eyebrow=esc(plan['eyebrow']), h1=esc('%s: qué cubre y cómo cotizarlo' % d), blurb=esc(lead),
         label=esc(plan['price_label']), price=esc(price), ctas=ctas(), img=plan['img'], alt=attr('%s, seguro de salud Bupa' % d),
-        name=esc(d), feats=feats, fit=esc(c['fit']), faqs=faq_html, disclaimer=DISCLAIMER,
-        tag=esc(' · '.join(tag_parts)), who=esc(c['who']), related=related, band=cta_band(d))
+        name=esc(d), feats=feats, fit=esc(c['fit']), detail=detail_html(det, d), faqs=faq_html,
+        disclaimer=disclaimer(det.get('pol') if det else None),
+        facts=''.join(facts), related=related, band=cta_band(d))
 
     title = '%s: cobertura y cotización | CotizaSalud Chile' % d
     if len(title) > 65:
@@ -434,7 +497,7 @@ def build_hub(plans, by_slug):
     {crumbs}
     <span class="eyebrow">Planes disponibles</span>
     <h1>Planes de seguro de salud Bupa en Chile</h1>
-    <p class="lead">{n} planes de Bupa Seguros para afiliados a Isapre y Fonasa, adultos mayores y empresas. Elige uno para ver qué cubre, o cuéntame tu caso y te recomiendo el que mejor se ajusta.</p>
+    <p class="lead">{n} planes de Bupa Seguros e IntegraMédica para afiliados a Isapre y Fonasa, adultos mayores y empresas. Elige uno para ver qué cubre, o cuéntame tu caso y te recomiendo el que mejor se ajusta.</p>
     {ctas}
   </div>
 </section>
@@ -445,9 +508,9 @@ def build_hub(plans, by_slug):
     {band}
   </div>
 </section>'''.format(crumbs=crumbs([('Inicio', '/'), ('Planes', None)]), n=len(SLUGS), ctas=ctas('Cotizar gratis'),
-                     groups=''.join(groups), disclaimer=DISCLAIMER, band=cta_band('tu seguro de salud'))
+                     groups=''.join(groups), disclaimer=disclaimer(), band=cta_band('tu seguro de salud'))
     title = 'Planes de seguro de salud Bupa en Chile | CotizaSalud Chile'
-    desc = 'Compara los 11 planes de salud Bupa: Cuidado Total, + Protección, MultiSalud, Catastrófico, Complementa, pymes y adulto mayor. Cotiza gratis.'
+    desc = 'Compara los %d planes de salud Bupa: Cuidado Total, + Protección, MultiSalud, Catastrófico, Complementa, 60+, dental, pymes y adulto mayor. Cotiza gratis.' % len(SLUGS)
     return path, page(title, desc, path, body, jsonld, SITE + '/images/plans/cuidado-total-70.jpg')
 
 
@@ -487,9 +550,10 @@ ARTICLE = '''<section class="page-hero" style="padding-bottom:32px;">
     <h2>Qué seguro complementario va con cada sistema</h2>
     <ul class="bullets">
       <li><strong>Si estás en Fonasa:</strong> existen planes exclusivos, como <a href="/planes/proteccion-80-70/">+ Protección 80/70</a>, <a href="/planes/proteccion-70-70/">+ Protección 70/70</a>, <a href="/planes/proteccion-ambulatorio-70/">+ Protección Ambulatorio 70</a> y <a href="/planes/multisalud/">MultiSalud</a> (tramos B, C o D).</li>
-      <li><strong>Si ya tienes Isapre:</strong> <a href="/planes/complementa/">Bupa Complementa</a> cubre el copago al mismo porcentaje que tu plan actual, sin deducible y sin declaración de salud.</li>
-      <li><strong>En cualquiera de los dos:</strong> <a href="/planes/cuidado-total-70/">Cuidado Total 70</a>, <a href="/planes/cuidado-total-60/">Cuidado Total 60</a>, el <a href="/planes/seguro-catastrofico/">Seguro Catastrófico</a> y el <a href="/planes/integramedica-100/">Plan IntegraMédica 100%</a>, que no pide declaración de salud.</li>
-      <li><strong>Desde los 60 años:</strong> <a href="/planes/adulto-mayor-integramedica-70/">Adulto Mayor IntegraMédica 70</a>.</li>
+      <li><strong>Si ya tienes Isapre:</strong> <a href="/planes/complementa/">Bupa Complementa</a> cubre el copago al mismo porcentaje que tu plan actual y no tiene deducible. Es exclusivo para afiliados a Isapre y se contrata con declaración de salud.</li>
+      <li><strong>En cualquiera de los dos (en Fonasa, tramos B, C o D):</strong> <a href="/planes/cuidado-total-70/">Cuidado Total 70</a>, <a href="/planes/cuidado-total-80/">80</a> y <a href="/planes/cuidado-total-60/">60</a>, el <a href="/planes/seguro-catastrofico/">Seguro Catastrófico</a> y el <a href="/planes/integramedica-100/">Plan IntegraMédica 100%</a>, que no pide declaración de salud.</li>
+      <li><strong>Desde los 60 años:</strong> <a href="/planes/adulto-mayor-integramedica-70/">Adulto Mayor IntegraMédica 70</a> y <a href="/planes/bupa-60-mas/">Bupa 60+</a>, que no pide declaración de salud.</li>
+      <li><strong>Para tu salud bucal:</strong> <a href="/planes/mi-dental-integramedica/">Mi Dental IntegraMédica 65%</a>, que no exige pertenecer a Isapre ni a Fonasa.</li>
       <li><strong>Para empresas:</strong> <a href="/planes/pymes-70-smart/">Pymes 70 Smart</a>, desde 5 colaboradores.</li>
     </ul>
 
@@ -551,9 +615,13 @@ def write(rel, content):
 if __name__ == '__main__':
     src = open(os.path.join(ROOT, 'index_13.html'), encoding='utf-8').read()
     shared = load_shared(src)
-    plans = extract(src)
-    assert len(plans) == len(SLUGS) == len(PLAN_COPY), (len(plans), len(SLUGS), len(PLAN_COPY))
-    by_slug = dict(zip(SLUGS, plans))
+    by_slug = extract(src)
+    assert list(by_slug) == SLUGS and set(PLAN_COPY) == set(SLUGS), 'SLUGS / PLAN_COPY desalineados'
+    for slug, extra in NEW_PLANS.items():      # planes sin slide de carrusel: completar imagen y textos
+        for k in ('img', 'eyebrow', 'blurb'):
+            if not by_slug[slug][k]:
+                by_slug[slug][k] = extra[k]
+    plans = list(by_slug.values())
 
     write('assets/site.css', shared['css'].strip() + '\n')
     write('assets/pages.css', PAGES_CSS)
