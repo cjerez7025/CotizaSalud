@@ -597,6 +597,15 @@
 <!-- Vercel Web Analytics: se activa en vercel.com > proyecto > Analytics -->
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0174BXJZ1D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-0174BXJZ1D');
+</script>
+<script src="/assets/track.js" defer></script>
 </head>
 <body>
 <script>document.documentElement.classList.add('js');</script>
@@ -1382,6 +1391,9 @@
       <h4>Tus derechos (ARCO)</h4>
       <p>Puedes solicitar en cualquier momento el acceso, rectificación, cancelación u oposición al tratamiento de tus datos, escribiendo a <strong>lorena.sotomayor@bupa.cl</strong>. Responderemos tu solicitud dentro de los plazos que establece la ley.</p>
 
+      <h4>Medición del sitio</h4>
+      <p>Usamos Google Analytics para medir, de forma agregada, las visitas al sitio y el uso de botones como WhatsApp, teléfono y el envío de formularios. Esta medición no incluye tu nombre, teléfono ni correo, y puede usar cookies. Puedes bloquearlas desde la configuración de tu navegador.</p>
+
       <h4>Conservación y seguridad</h4>
       <p>Tus datos se conservan solo durante el tiempo necesario para gestionar tu cotización y se almacenan con medidas de seguridad razonables para evitar accesos no autorizados.</p>
     </div>
@@ -1581,6 +1593,7 @@
               form.reset();
               if(wrap) wrap.style.display = 'none';
               if(success) success.style.display = 'block';
+              if(window.gtag) gtag('event', 'generate_lead', { form_id: formId, lead_source: origen });
             } else {
               status.className = 'form-status error';
               status.textContent = (data && data.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';

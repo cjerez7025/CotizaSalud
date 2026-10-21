@@ -31,6 +31,7 @@ import datetime
 TODAY = datetime.date.today().isoformat()      # fecha de generacion (lastmod / dateModified)
 GUIDE_PUBLISHED = '2026-10-19'
 GUIDE_SLUG = 'isapre-vs-fonasa-seguro-complementario'
+GA_ID = 'G-0174BXJZ1D'      # Google Analytics 4 (medicion de conversiones)
 
 
 def esc(t):
@@ -284,6 +285,15 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website'):
 {jsonld}
 <script>window.va = window.va || function () {{ (window.vaq = window.vaq || []).push(arguments); }};</script>
 <script defer src="/_vercel/insights/script.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={ga}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{ga}');
+</script>
+<script src="/assets/track.js" defer></script>
 </head>
 <body>
 {sprite}
@@ -298,7 +308,7 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website'):
 </html>
 '''.format(title=attr(title), desc=attr(desc), url=url, og_type=og_type, og_image=og_image, body=body,
            icon=shared['icon'], fonts=shared['fonts'], jsonld='\n'.join(jsonld),
-           sprite=shared['sprite'], header=shared['header'], footer=shared['footer'],
+           ga=GA_ID, sprite=shared['sprite'], header=shared['header'], footer=shared['footer'],
            wsp=shared['wsp'], script=phone_script(shared['webapp']))
 
 
