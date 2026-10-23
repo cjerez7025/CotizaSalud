@@ -60,8 +60,19 @@ function doGet() {
     service: 'CotizaSalud cotizaciones',
     status: 'online',
     celular: config.celular,
-    ejecutiva: getEjecutiva(),
+    ejecutiva: getEjecutivaPublica(),
   });
+}
+
+// doGet es publico: solo se entrega lo que muestra la pagina (nunca password_hash, id, etc.).
+var EJECUTIVA_CAMPOS_PUBLICOS = ['nombre', 'cargo', 'telefono'];
+
+function getEjecutivaPublica() {
+  var full = getEjecutiva();
+  if (!full) return null;
+  var pub = {};
+  EJECUTIVA_CAMPOS_PUBLICOS.forEach(function (k) { pub[k] = full[k] || ''; });
+  return pub;
 }
 
 function getEjecutiva() {

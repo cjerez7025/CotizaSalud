@@ -97,8 +97,23 @@ function doGet(): GoogleAppsScript.Content.TextOutput {
     service: 'CotizaSalud cotizaciones',
     status: 'online',
     celular: config.celular,
-    ejecutiva: getEjecutiva(),
+    ejecutiva: getEjecutivaPublica(),
   });
+}
+
+/**
+ * Subconjunto de la fila de la ejecutiva que es seguro publicar: doGet es público (lo lee
+ * cualquier visitante), así que NUNCA debe devolver la fila completa (contiene password_hash,
+ * id interno y otros datos). Se entrega solo lo que muestra la página.
+ */
+const EJECUTIVA_CAMPOS_PUBLICOS = ['nombre', 'cargo', 'telefono'];
+
+function getEjecutivaPublica(): Record<string, string> | null {
+  const full = getEjecutiva();
+  if (!full) return null;
+  const pub: Record<string, string> = {};
+  EJECUTIVA_CAMPOS_PUBLICOS.forEach((k) => { pub[k] = full[k] || ''; });
+  return pub;
 }
 
 /**
