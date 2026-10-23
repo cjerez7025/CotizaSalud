@@ -148,6 +148,7 @@ def load_shared(src):
     icon = re.search(r'<link rel="icon"[^>]*>', src).group(0)
     fonts = '\n'.join(re.findall(r'<link rel="(?:preconnect|stylesheet)"[^>]*fonts[^>]*>|<link href="https://fonts[^>]*>', src))
     webapp = re.search(r"var COTIZA_WEBAPP_URL = '([^']+)'", src).group(1)
+    privacy = re.search(r'<div class="modal-overlay" id="privacyModal".*?Entendido</button>\s*</div>\s*</div>', src, re.S).group(0)
 
     def fix_hash(m):
         name = m.group(1)
@@ -156,7 +157,7 @@ def load_shared(src):
     footer = re.sub(r'href="#(\w+)"', lambda m: 'href="/#%s"' % m.group(1), footer)
     header = re.sub(r'<div class="logo">(.*?)</div>', r'<a class="logo" href="/" aria-label="CotizaSalud Chile, inicio">\1</a>', header, count=1, flags=re.S)
     footer = re.sub(r'<div class="logo">(.*?)</div>', r'<a class="logo" href="/" aria-label="CotizaSalud Chile, inicio">\1</a>', footer, count=1, flags=re.S)
-    return dict(css=css, sprite=sprite, header=header, footer=footer, wsp=wsp, icon=icon, fonts=fonts, webapp=webapp)
+    return dict(css=css, sprite=sprite, header=header, footer=footer, wsp=wsp, icon=icon, fonts=fonts, webapp=webapp, privacy=privacy)
 
 
 PAGES_CSS = '''/* Estilos de las paginas internas (planes, guias). Complementa site.css. */
@@ -256,8 +257,23 @@ def ld(obj):
     return '<script type="application/ld+json">\n%s\n</script>' % json.dumps(obj, ensure_ascii=False, indent=2)
 
 
-def page(title, desc, path, body, jsonld, og_image, og_type='website'):
+WSP_URL = 'https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20complementario%20de%20salud'
+
+
+def _min_header():
+    logo = re.search(r'<a class="logo".*?</a>', shared['header'], re.S).group(0)
+    return ('<header><div class="wrap nav">' + logo + '<div class="nav-actions">'
+            '<div class="nav-phone">Asesoría telefónica<b class="js-phone-number">+56936205530</b></div>'
+            '<a href="' + WSP_URL + '" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener">'
+            '<svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> WhatsApp</a></div></div></header>')
+
+
+MIN_HEADER = MIN_FOOTER = None   # se completan en main (dependen de shared)
+
+def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='index, follow', minimal=False):
     url = SITE + path
+    header = MIN_HEADER if minimal else shared['header']
+    footer = MIN_FOOTER if minimal else shared['footer']
     return '''<!DOCTYPE html>
 <html lang="es-CL">
 <head>
@@ -265,7 +281,7 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website'):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="{robots}">
 <link rel="canonical" href="{url}">
 <meta property="og:type" content="{og_type}">
 <meta property="og:locale" content="es_CL">
@@ -308,7 +324,7 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website'):
 </html>
 '''.format(title=attr(title), desc=attr(desc), url=url, og_type=og_type, og_image=og_image, body=body,
            icon=shared['icon'], fonts=shared['fonts'], jsonld='\n'.join(jsonld),
-           ga=GA_ID, sprite=shared['sprite'], header=shared['header'], footer=shared['footer'],
+           ga=GA_ID, robots=robots, sprite=shared['sprite'], header=header, footer=footer,
            wsp=shared['wsp'], script=phone_script(shared['webapp']))
 
 
@@ -723,6 +739,129 @@ def build_guides_hub():
                       path, body, jsonld, SITE + '/images/plans/cuidado-total-70.jpg')
 
 
+
+LP_JS = r"""<script>
+(function(){
+  var URL_ = '[[webapp]]';
+  var form = document.getElementById('lpForm'), btn = document.getElementById('lpBtn'),
+      status = document.getElementById('lpStatus'), wrap = document.getElementById('lpWrap'), ok = document.getElementById('lpSuccess');
+  var q = new URLSearchParams(location.search);
+  var camp = q.get('utm_campaign') || q.get('utm_term') || '';
+  var origen = 'landing-ads' + (camp ? ' · ' + camp.slice(0, 60) : '');
+  if (form) form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    var payload = { origen: origen };
+    ['nombre','telefono','email','sistema','interes','mensaje'].forEach(function(k){ payload[k] = (document.getElementById('lp-' + k).value || '').trim(); });
+    btn.disabled = true; var txt = btn.textContent; btn.textContent = 'Enviando...';
+    status.className = 'form-status loading'; status.textContent = 'Enviando tu cotización...';
+    fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok) {
+          status.className = ''; status.textContent = ''; form.reset(); wrap.style.display = 'none'; ok.style.display = 'block';
+          if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: 'landing-ads' });
+        } else {
+          status.className = 'form-status error'; status.textContent = (d && d.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';
+        }
+      })
+      .catch(function(){ status.className = 'form-status error'; status.textContent = 'Error de conexión. Intenta nuevamente en unos minutos.'; })
+      .finally(function(){ btn.disabled = false; btn.textContent = txt; });
+  });
+  var pm = document.getElementById('privacyModal');
+  function openP(e){ if (e) e.preventDefault(); pm.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeP(){ pm.classList.remove('open'); document.body.style.overflow = ''; }
+  document.querySelectorAll('.privacy-link').forEach(function(a){ a.addEventListener('click', openP); });
+  document.getElementById('privacyClose').addEventListener('click', closeP);
+  document.getElementById('privacyAccept').addEventListener('click', closeP);
+  pm.addEventListener('click', function(e){ if (e.target === pm) closeP(); });
+})();
+</script>"""
+
+LP_FAQ = [
+    ('¿La asesoría tiene algún costo?', 'No. Cotizar y recibir la asesoría es gratis y sin compromiso.'),
+    ('¿Puedo contratar un seguro complementario si estoy en Fonasa?',
+     'Sí. Hay planes exclusivos para Fonasa, como + Protección y MultiSalud (tramos B, C o D), y otros que aceptan afiliados a Fonasa o a Isapre.'),
+    ('¿Y si tengo enfermedades preexistentes?',
+     'Depende del plan: IntegraMédica 100%, Adulto Mayor IntegraMédica 70 y Mi Dental cubren preexistencias, y Bupa 60+ no pide declaración de salud. Te explico las condiciones de cada uno.'),
+    ('¿Cuánto demora la respuesta?', 'Te respondo en menos de 24 horas con 2 o 3 alternativas comparadas, o antes si me escribes por WhatsApp.'),
+]
+LP_PLANS = ['cuidado-total-70', 'seguro-catastrofico', 'proteccion-70-70', 'complementa', 'bupa-60-mas', 'mi-dental-integramedica']
+
+
+def build_ads_landing(by_slug):
+    path = '/asesoria-gratis/'
+    plans_opts = ''.join('<option>%s</option>' % esc(PLAN_COPY[s]['display']) for s in SLUGS)
+    cards = ''.join('<a class="related-card" href="/planes/%s/"><h3>%s</h3><p>%s</p><span>Ver detalle →</span></a>'
+                    % (s, esc(PLAN_COPY[s]['display']), esc(by_slug[s]['tag'])) for s in LP_PLANS)
+    faqs = ''.join('<details class="faq-item"><summary>%s</summary><p>%s</p></details>' % (esc(q), esc(a)) for q, a in LP_FAQ)
+    body = """<section class="page-hero">
+  <div class="wrap ph-grid">
+    <div>
+      <span class="eyebrow">Asesoría gratuita · Sin compromiso</span>
+      <h1>Cotiza tu seguro complementario de salud con asesoría gratuita</h1>
+      <p class="lead">Para afiliados a Fonasa e Isapre. Comparo coberturas, topes y deducibles de planes Bupa e IntegraMédica y te envío 2 o 3 alternativas reales en menos de 24 horas.</p>
+      <ul class="cta-bullets">
+        <li><span class="check">✓</span>Sin costo y sin compromiso</li>
+        <li><span class="check">✓</span>Respuesta en menos de 24 horas</li>
+        <li><span class="check">✓</span>Planes para afiliados a Fonasa e Isapre</li>
+        <li><span class="check">✓</span>Atención también por WhatsApp</li>
+      </ul>
+      <p style="margin-top:22px;"><a href="[[wsp]]" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Prefiero escribir por WhatsApp</a></p>
+    </div>
+    <div class="cta-section">
+      <div class="cta-form">
+        <h3>Cotiza tu seguro</h3>
+        <div id="lpWrap">
+          <form id="lpForm" onsubmit="return false;">
+            <div class="form-grid">
+              <div class="full"><label for="lp-nombre">Nombre completo</label><input id="lp-nombre" type="text" placeholder="Tu nombre" required></div>
+              <div><label for="lp-telefono">Teléfono</label><input id="lp-telefono" type="tel" placeholder="+56 9 ...." required></div>
+              <div><label for="lp-email">Correo</label><input id="lp-email" type="email" placeholder="tucorreo@mail.com" required></div>
+              <div><label for="lp-sistema">Sistema de salud</label><select id="lp-sistema"><option>Isapre</option><option>Fonasa</option><option>No estoy seguro</option></select></div>
+              <div><label for="lp-interes">Plan de tu interés</label><select id="lp-interes"><option>No estoy seguro</option>[[opts]]</select></div>
+              <div class="full"><label for="lp-mensaje">Cuéntanos brevemente tu situación (opcional)</label><textarea id="lp-mensaje" rows="3" placeholder="Ej: busco un seguro para mis hijos"></textarea></div>
+            </div>
+            <div class="consent-row">
+              <input type="checkbox" id="lp-consent" required>
+              <label for="lp-consent">He leído y acepto la <a href="#" class="privacy-link">Política de Privacidad</a> y autorizo el uso de mis datos personales para ser contactado/a con esta cotización.*</label>
+            </div>
+            <button class="btn btn-primary" type="submit" id="lpBtn">Enviar y recibir mi cotización</button>
+            <p class="form-status" id="lpStatus" aria-live="polite"></p>
+          </form>
+          <p class="form-fine">Tus datos se usan solo para contactarte con tu cotización. No hacemos spam.</p>
+        </div>
+        <div class="form-success" id="lpSuccess">
+          <div class="check-circle">✓</div>
+          <h4>¡Tu cotización fue enviada!</h4>
+          <p>Gracias por confiar en nosotros. Te contactaremos a la brevedad con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="page-body">
+  <div class="wrap">
+    <div class="prose">
+      <h2>Algunos seguros que puedo cotizarte</h2>
+      <div class="related-grid">[[cards]]</div>
+      <p style="margin-top:20px;"><a href="/planes/">Ver todos los planes →</a></p>
+      <h2>Preguntas frecuentes</h2>
+      <div class="faq-list">[[faqs]]</div>
+      [[disclaimer]]
+    </div>
+  </div>
+</section>
+[[privacy]]
+[[js]]"""
+    for k, v in dict(wsp=WSP_URL, opts=plans_opts, cards=cards, faqs=faqs, disclaimer=disclaimer(), privacy=shared['privacy'],
+                     js=LP_JS.replace('[[webapp]]', shared['webapp'])).items():
+        body = body.replace('[[%s]]' % k, v)
+    title = 'Asesoría gratuita en seguros complementarios de salud | CotizaSalud'
+    desc = 'Cotiza tu seguro complementario de salud con asesoría gratuita. Para afiliados a Fonasa e Isapre. Respuesta en menos de 24 horas.'
+    return path, page(title, desc, path, body, [], SITE + '/images/plans/cuidado-total-70.jpg', robots='noindex, follow', minimal=True)
+
+
 def build_sitemap(paths):
     rows = [('/', '1.0', 'weekly')]
     for p in paths:
@@ -745,6 +884,9 @@ def write(rel, content):
 if __name__ == '__main__':
     src = open(os.path.join(ROOT, 'index_13.html'), encoding='utf-8').read()
     shared = load_shared(src)
+    MIN_HEADER = _min_header()
+    MIN_FOOTER = ('<footer><div class="wrap"><div class="foot-bottom"><span>© 2026 CotizaSalud Chile — Ejecutiva de Ventas Bupa Seguros.</span>'
+                  '<span><a href="#" class="privacy-link">Política de privacidad</a></span></div></div></footer>')
     by_slug = extract(src)
     assert list(by_slug) == SLUGS and set(PLAN_COPY) == set(SLUGS), 'SLUGS / PLAN_COPY desalineados'
     for slug, extra in NEW_PLANS.items():      # planes sin slide de carrusel: completar imagen y textos
@@ -769,6 +911,9 @@ if __name__ == '__main__':
     for g in GUIDES:
         p, html_ = build_guide(g, by_slug)
         write(p + 'index.html', html_); paths.append(p)
+
+    p, html_ = build_ads_landing(by_slug)
+    write(p + 'index.html', html_)      # noindex: no entra al sitemap
 
     write('sitemap.xml', build_sitemap(paths))
     print('ok:', len(paths), 'paginas')
