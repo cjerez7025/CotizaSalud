@@ -27,23 +27,57 @@
 {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
+  "@id": "https://cotizasaludchile.cl/#organization",
   "name": "CotizaSalud Chile",
   "description": "Cotiza gratis tu plan de salud Bupa en Chile. Compara planes, precios y coberturas en minutos.",
   "url": "https://cotizasaludchile.cl/",
+  "logo": "https://cotizasaludchile.cl/images/brand/logo.svg",
+  "image": "https://cotizasaludchile.cl/images/plans/cuidado-total-70.jpg",
   "email": "lorena.sotomayor@bupa.cl",
+  "telephone": "+56936205530",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Santiago",
     "addressCountry": "CL"
   },
-  "areaServed": "CL",
-  "sameAs": ["https://instagram.com/bupa_lorena_sotomayor"],
+  "areaServed": {
+    "@type": "Country",
+    "name": "Chile"
+  },
+  "sameAs": [
+    "https://instagram.com/bupa_lorena_sotomayor"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "sales",
+    "telephone": "+56936205530",
+    "email": "lorena.sotomayor@bupa.cl",
+    "availableLanguage": "es",
+    "areaServed": "CL"
+  },
   "employee": {
     "@type": "Person",
     "name": "Lorena Sotomayor",
     "jobTitle": "Ejecutiva de Ventas",
     "email": "lorena.sotomayor@bupa.cl",
-    "worksFor": {"@type": "Organization", "name": "Bupa Seguros"}
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Bupa Seguros"
+    },
+    "@id": "https://cotizasaludchile.cl/#lorena-sotomayor"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://cotizasaludchile.cl/#website",
+  "url": "https://cotizasaludchile.cl/",
+  "name": "CotizaSalud Chile",
+  "inLanguage": "es-CL",
+  "publisher": {
+    "@id": "https://cotizasaludchile.cl/#organization"
   }
 }
 </script>
@@ -640,7 +674,7 @@
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="nav-actions">
-      <div class="nav-phone">Asesoría telefónica<b class="js-phone-number">+56 9 1234 5678</b></div>
+      <div class="nav-phone">Asesoría telefónica<b class="js-phone-number">+56936205530</b></div>
       <a href="#contacto" class="btn btn-primary">Cotiza gratis</a>
       <label class="burger" for="menuToggle" aria-label="Abrir menú"><span></span><span></span><span></span></label>
     </div>
@@ -650,7 +684,7 @@
     <a href="#proceso">Cómo funciona</a>
     <a href="#confianza">Por qué nosotros</a>
     <a href="#contacto">Contacto</a>
-    <div class="mobile-menu-phone">Asesoría telefónica<b class="js-phone-number">+56 9 1234 5678</b></div>
+    <div class="mobile-menu-phone">Asesoría telefónica<b class="js-phone-number">+56936205530</b></div>
     <a href="#contacto" class="btn btn-primary" style="width:100%;">Cotiza gratis</a>
   </nav>
 </header>
@@ -814,7 +848,7 @@
         <p class="lead">Cotiza en minutos y recibe una propuesta clara, sin letra chica, adaptada a tu presupuesto y a tu sistema de salud.</p>
         <div class="hero-ctas">
           <a href="#contacto" class="btn btn-primary">Cotizar en 1 minuto</a>
-          <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Hablar por WhatsApp</a>
+          <a href="https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20de%20salud%20Bupa" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Hablar por WhatsApp</a>
         </div>
         <div class="trust-row">
           <div class="trust-item"><span class="dot">✓</span>Ejecutiva oficial Bupa</div>
@@ -834,10 +868,10 @@
             <img class="advisor-photo" src="images/brand/lorena-sotomayor.webp" width="56" height="56" alt="Lorena Sotomayor, ejecutiva de Bupa Seguros">
             <div>
               <p class="advisor-name js-advisor-name">Lorena Sotomayor</p>
-              <p class="advisor-role js-advisor-role">Ejecutiva de Ventas · Bupa Seguros</p>
-              <a class="advisor-phone js-phone-tel" href="tel:+56912345678">
+              <p class="advisor-role js-advisor-role">Gestora Comercial · Bupa Seguros</p>
+              <a class="advisor-phone js-phone-tel" href="tel:+56936205530">
                 <svg class="icon-phone" aria-hidden="true"><use href="#icon-phone"></use></svg>
-                <span class="js-phone-number">+56 9 1234 5678</span>
+                <span class="js-phone-number">+56936205530</span>
               </a>
             </div>
           </div>
@@ -1177,7 +1211,7 @@
               <li><span class="check">✓</span>Respuesta en menos de 24 horas</li>
               <li><span class="check">✓</span>Atención también por WhatsApp</li>
             </ul>
-            <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Prefiero escribir por WhatsApp</a>
+            <a href="https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20de%20salud%20Bupa" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Prefiero escribir por WhatsApp</a>
           </div>
           <div class="cta-form">
             <h3>Cotiza tu seguro</h3>
@@ -1276,7 +1310,7 @@
       <div>
         <h4>Contacto</h4>
         <ul>
-          <li class="js-phone-number">+56 9 1234 5678</li>
+          <li class="js-phone-number">+56936205530</li>
           <li>lorena.sotomayor@bupa.cl</li>
           <li>Santiago, Chile</li>
         </ul>
@@ -1289,7 +1323,7 @@
   </div>
 </footer>
 
-<a href="#" class="wsp-float js-wsp-link" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg></a>
+<a href="https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20de%20salud%20Bupa" class="wsp-float js-wsp-link" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg></a>
 
 <!-- MODAL DE BIENVENIDA -->
 <div class="modal-overlay" id="welcomeModal">
@@ -1352,7 +1386,7 @@
         <button class="btn btn-primary" type="submit" id="cotizaModalFormBtn">Enviar y recibir mi cotización</button>
         <p class="form-status" id="cotizaModalFormStatus" aria-live="polite"></p>
       </form>
-      <a href="#" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener" style="width:100%;margin-top:12px;"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Prefiero escribir por WhatsApp</a>
+      <a href="https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20de%20salud%20Bupa" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener" style="width:100%;margin-top:12px;"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Prefiero escribir por WhatsApp</a>
       <button class="modal-later" id="modalLater" type="button">Tal vez más tarde</button>
       </div>
       <div class="form-success" id="cotizaModalFormSuccess">

@@ -144,7 +144,7 @@ def load_shared(src):
     sprite = re.search(r'<svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">.*?</svg>', src, re.S).group(0)
     header = re.search(r'<header>.*?</header>', src, re.S).group(0)
     footer = re.search(r'<footer>.*?</footer>', src, re.S).group(0)
-    wsp = re.search(r'<a href="#" class="wsp-float js-wsp-link".*?</a>', src, re.S).group(0)
+    wsp = re.search(r'<a href="[^"]*" class="wsp-float js-wsp-link".*?</a>', src, re.S).group(0)
     icon = re.search(r'<link rel="icon"[^>]*>', src).group(0)
     fonts = '\n'.join(re.findall(r'<link rel="(?:preconnect|stylesheet)"[^>]*fonts[^>]*>|<link href="https://fonts[^>]*>', src))
     webapp = re.search(r"var COTIZA_WEBAPP_URL = '([^']+)'", src).group(1)
@@ -450,7 +450,7 @@ def build_plan(plan, slug, by_slug):
             'serviceType': 'Seguro complementario de salud', 'description': lead,
             'url': SITE + path, 'areaServed': 'CL',
             'provider': {'@type': 'Organization', 'name': 'Bupa Seguros'},
-            'broker': {'@type': 'InsuranceAgency', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
+            'broker': {'@type': 'InsuranceAgency', '@id': SITE + '/#organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
         ld({'@context': 'https://schema.org', '@type': 'FAQPage',
             'mainEntity': [{'@type': 'Question', 'name': q,
                             'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faqs]}),
@@ -634,8 +634,8 @@ def build_article():
             'description': desc, 'datePublished': GUIDE_PUBLISHED, 'dateModified': TODAY, 'inLanguage': 'es-CL',
             'mainEntityOfPage': SITE + path,
             'image': SITE + '/images/plans/cuidado-total-70.jpg',
-            'author': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
-            'publisher': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
+            'author': {'@type': 'Organization', '@id': SITE + '/#organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
+            'publisher': {'@type': 'Organization', '@id': SITE + '/#organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
     ]
     body = ARTICLE.replace('{crumbs}', crumbs([('Inicio', '/'), ('Guías', '/guias/'), ('Isapre vs Fonasa', None)])) \
                   .replace('{band}', cta_band('tu seguro complementario'))
@@ -665,8 +665,8 @@ def build_guide(g, by_slug):
         ld({'@context': 'https://schema.org', '@type': 'Article', 'headline': g['h1'], 'description': g['desc'],
             'datePublished': published, 'dateModified': TODAY, 'inLanguage': 'es-CL', 'mainEntityOfPage': SITE + path,
             'image': '%s/%s' % (SITE, g['image']),
-            'author': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
-            'publisher': {'@type': 'Organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
+            'author': {'@type': 'Organization', '@id': SITE + '/#organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'},
+            'publisher': {'@type': 'Organization', '@id': SITE + '/#organization', 'name': 'CotizaSalud Chile', 'url': SITE + '/'}}),
         ld({'@context': 'https://schema.org', '@type': 'FAQPage',
             'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in g['faqs']]}),
     ]
