@@ -760,7 +760,8 @@ LP_JS = r"""<script>
       .then(function(d){
         if (d && d.ok) {
           status.className = ''; status.textContent = ''; form.reset(); wrap.style.display = 'none'; ok.style.display = 'block';
-          if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: 'landing-ads' });
+          try { sessionStorage.setItem('lead_ads', '1'); } catch (err) {}
+          window.location.href = '/asesoria-gratis/gracias/' + (window.location.search || '');
         } else {
           status.className = 'form-status error'; status.textContent = (d && d.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';
         }
@@ -862,6 +863,34 @@ def build_ads_landing(by_slug):
     return path, page(title, desc, path, body, [], SITE + '/images/plans/cuidado-total-70.jpg', robots='noindex, follow', minimal=True)
 
 
+def build_ads_thanks():
+    path = '/asesoria-gratis/gracias/'
+    body = """<section class="page-hero">
+  <div class="wrap" style="max-width:720px;text-align:center;">
+    <div class="form-success" style="display:block;">
+      <div class="check-circle">✓</div>
+      <h1 style="font-size:clamp(26px,3.2vw,38px);margin:8px 0 14px;">¡Tu cotización fue enviada!</h1>
+      <p style="font-size:17px;color:var(--slate);line-height:1.6;max-width:none;">Gracias por confiar en nosotros. Te contactaremos en menos de 24 horas con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+    </div>
+    <p style="margin-top:26px;"><a href="[[wsp]]" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Escribirme por WhatsApp</a></p>
+    <p style="margin-top:34px;color:var(--slate);">Mientras tanto, puedes revisar <a href="/planes/" style="color:var(--teal-deep);text-decoration:underline;">todos los planes</a> o leer nuestras <a href="/guias/" style="color:var(--teal-deep);text-decoration:underline;">guías de salud</a>.</p>
+  </div>
+</section>
+<script>
+(function(){
+  try {
+    if (sessionStorage.getItem('lead_ads') === '1') {
+      sessionStorage.removeItem('lead_ads');
+      if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: 'landing-ads' });
+    }
+  } catch (e) {}
+})();
+</script>""".replace('[[wsp]]', WSP_URL)
+    title = 'Gracias por cotizar | CotizaSalud'
+    desc = 'Recibimos tu solicitud de cotización de seguro complementario de salud.'
+    return path, page(title, desc, path, body, [], SITE + '/images/plans/cuidado-total-70.jpg', robots='noindex, follow', minimal=True)
+
+
 def build_sitemap(paths):
     rows = [('/', '1.0', 'weekly')]
     for p in paths:
@@ -913,6 +942,9 @@ if __name__ == '__main__':
         write(p + 'index.html', html_); paths.append(p)
 
     p, html_ = build_ads_landing(by_slug)
+    write(p + 'index.html', html_)      # noindex: no entra al sitemap
+
+    p, html_ = build_ads_thanks()
     write(p + 'index.html', html_)      # noindex: no entra al sitemap
 
     write('sitemap.xml', build_sitemap(paths))

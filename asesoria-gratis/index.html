@@ -169,7 +169,8 @@
       .then(function(d){
         if (d && d.ok) {
           status.className = ''; status.textContent = ''; form.reset(); wrap.style.display = 'none'; ok.style.display = 'block';
-          if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: 'landing-ads' });
+          try { sessionStorage.setItem('lead_ads', '1'); } catch (err) {}
+          window.location.href = '/asesoria-gratis/gracias/' + (window.location.search || '');
         } else {
           status.className = 'form-status error'; status.textContent = (d && d.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';
         }
