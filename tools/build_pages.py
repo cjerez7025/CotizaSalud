@@ -257,6 +257,8 @@ def ld(obj):
     return '<script type="application/ld+json">\n%s\n</script>' % json.dumps(obj, ensure_ascii=False, indent=2)
 
 
+BG_FX = '<div class="bg-fx" aria-hidden="true"><i class="grid-bg"></i><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>'
+
 WSP_URL = 'https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20complementario%20de%20salud'
 
 
@@ -272,6 +274,8 @@ MIN_HEADER = MIN_FOOTER = None   # se completan en main (dependen de shared)
 
 def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='index, follow', minimal=False):
     url = SITE + path
+    body = re.sub(r'(<section class="page-hero"[^>]*>)', lambda m: m.group(1) + BG_FX, body)
+    body = body.replace('<h1>', '<h1 data-words>', 1)
     header = MIN_HEADER if minimal else shared['header']
     footer = MIN_FOOTER if minimal else shared['footer']
     return '''<!DOCTYPE html>
@@ -298,6 +302,8 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='i
 {fonts}
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/theme.css">
+<meta name="theme-color" content="#06182A">
 {jsonld}
 <script>window.va = window.va || function () {{ (window.vaq = window.vaq || []).push(arguments); }};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -310,8 +316,10 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='i
   gtag('config', '{ga}');
 </script>
 <script src="/assets/track.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </head>
 <body>
+<div id="progress"></div>
 {sprite}
 {header}
 <main>

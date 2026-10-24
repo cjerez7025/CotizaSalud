@@ -21,9 +21,11 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22g%22%20x1=%2212%22%20y1=%2210%22%20x2=%2288%22%20y2=%2292%22%20gradientUnits=%22userSpaceOnUse%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%230079C8%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%23005A94%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d=%22M76.04%2028.14%20A34%2034%200%201%200%2076.04%2071.86%22%20fill=%22none%22%20stroke=%22url(%23g)%22%20stroke-width=%2220%22%20stroke-linecap=%22round%22/%3E%3Cpath%20d=%22M52%2036%20V64%20M38%2050%20H66%22%20fill=%22none%22%20stroke=%22%23DE9F3A%22%20stroke-width=%229.5%22%20stroke-linecap=%22round%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/theme.css">
+<meta name="theme-color" content="#06182A">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -88,8 +90,10 @@
   gtag('config', 'G-0174BXJZ1D');
 </script>
 <script src="/assets/track.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </head>
 <body>
+<div id="progress"></div>
 <svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
   <symbol id="icon-wsp" viewBox="0 0 16 16">
     <path fill="currentColor" d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.199-.099-1.176-.58-1.358-.647-.182-.065-.315-.099-.448.099-.133.197-.513.647-.627.782-.116.133-.232.148-.43.048-.199-.1-.837-.308-1.596-.985-.59-.525-.985-1.175-1.101-1.372-.116-.198-.011-.304.088-.403.087-.088.199-.232.298-.348.1-.116.133-.198.198-.33.066-.134.033-.248-.016-.347-.05-.099-.448-1.076-.613-1.473-.16-.389-.325-.334-.448-.34-.116-.006-.248-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.472.204.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.336-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
@@ -103,7 +107,7 @@
 <header>
   <input type="checkbox" id="menuToggle" class="menu-toggle-cb" hidden>
   <div class="wrap nav">
-    <a class="logo" href="/" aria-label="CotizaSalud Chile, inicio"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-logo-mark"></use></svg>Cotiza<span>Salud</span> Chile</a>
+    <a class="logo" href="/" aria-label="CotizaSalud Chile, inicio"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lgHead" x1="12" y1="10" x2="88" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5FC4EF"/><stop offset="1" stop-color="#0079C8"/></linearGradient></defs><path class="ring" pathLength="1" d="M76.04 28.14 A34 34 0 1 0 76.04 71.86" fill="none" stroke="url(#lgHead)" stroke-width="20" stroke-linecap="round"/><path class="plus" d="M52 36 V64 M38 50 H66" fill="none" stroke="#DE9F3A" stroke-width="9.5" stroke-linecap="round"/></svg>Cotiza<span>Salud</span> Chile</a>
     <nav class="links">
       <a href="/planes/">Planes</a>
       <a href="/#proceso">Cómo funciona</a>
@@ -126,11 +130,11 @@
   </nav>
 </header>
 <main>
-<section class="page-hero" style="padding-bottom:32px;">
+<section class="page-hero" style="padding-bottom:32px;"><div class="bg-fx" aria-hidden="true"><i class="grid-bg"></i><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
   <div class="wrap">
     <nav class="crumbs" aria-label="Migas de pan"><a href="/">Inicio</a> <span class="sep" aria-hidden="true">›</span> <span aria-current="page">Guías</span></nav>
     <span class="eyebrow">Guías</span>
-    <h1>Guías de seguros de salud en Chile</h1>
+    <h1 data-words>Guías de seguros de salud en Chile</h1>
     <p class="lead">Explicaciones claras para decidir mejor: cómo se combinan Isapre y Fonasa con un seguro complementario, qué es el copago, el seguro catastrófico y las opciones para adultos mayores.</p>
   </div>
 </section>
