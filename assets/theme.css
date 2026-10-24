@@ -180,3 +180,18 @@ html.motion [data-rv].in{opacity:1;transform:none}
 /* margen lateral de la cabecera (alinea el logo con el resto del contenido) */
 .nav{padding-left:24px;padding-right:24px}
 .modal-card .cta-form{background:transparent;border-left:0}
+
+/* ---------- Popup de bienvenida en celular (iPhone / navegador de WhatsApp) ---------- */
+.modal-close{z-index:6}
+.modal-card .eyebrow{max-width:calc(100% - 50px);border-radius:16px;line-height:1.3;font-size:11.5px;padding:7px 12px;margin-bottom:16px}
+.modal-card .cta-form{border:0;padding-left:0;padding-right:0}
+@supports (height:100dvh){.modal-card{max-height:calc(100dvh - 32px)}}
+@media (max-width:520px){
+  .modal-overlay{padding:16px}
+  .modal-card{padding:24px 20px 22px}
+  .modal-card h2{font-size:21px}
+  .modal-card .form-grid{gap:0}
+  .modal-card .cta-form input,.modal-card .cta-form select,.modal-card .cta-form textarea{margin-bottom:10px;padding:11px 13px}
+  .modal-card .cta-form label{margin-bottom:5px}
+  .modal-card .cta-form textarea{min-height:64px}
+}

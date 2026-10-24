@@ -13,3 +13,4 @@ _pdfimg/
 planes/*.pdf
 __pycache__/
 publicidad/
+/WhatsApp*
