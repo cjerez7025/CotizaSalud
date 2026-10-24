@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="CotizaSalud Chile">
-  <defs>
-    <linearGradient id="g" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0079C8"/>
-      <stop offset="1" stop-color="#005A94"/>
-    </linearGradient>
-  </defs>
-  <path fill="url(#g)" d="M32 4C21.5 4 11.5 7.6 8.4 12.2C8.1 12.7 8 13.3 8 13.9V30.5C8 44.5 16.5 54.5 31.3 60.7C31.8 60.9 32.2 60.9 32.7 60.7C47.5 54.5 56 44.5 56 30.5V13.9C56 13.3 55.9 12.7 55.6 12.2C52.5 7.6 42.5 4 32 4Z"/>
-  <path fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" d="M20.5 32.5L28 40L44 21"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" role="img" aria-label="CotizaSalud Chile"><defs><linearGradient id="g" x1="12" y1="10" x2="88" y2="92" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0079C8"/><stop offset="1" stop-color="#005A94"/></linearGradient></defs><path d="M76.04 28.14 A34 34 0 1 0 76.04 71.86" fill="none" stroke="url(#g)" stroke-width="20" stroke-linecap="round"/><path d="M52 36 V64 M38 50 H66" fill="none" stroke="#DE9F3A" stroke-width="9.5" stroke-linecap="round"/></svg>
