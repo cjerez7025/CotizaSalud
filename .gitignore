@@ -12,3 +12,4 @@ _pdfimg/
 .env*
 planes/*.pdf
 __pycache__/
+publicidad/
