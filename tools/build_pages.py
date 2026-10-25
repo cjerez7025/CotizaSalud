@@ -32,6 +32,7 @@ TODAY = datetime.date.today().isoformat()      # fecha de generacion (lastmod / 
 GUIDE_PUBLISHED = '2026-10-19'
 GUIDE_SLUG = 'isapre-vs-fonasa-seguro-complementario'
 GA_ID = 'G-0174BXJZ1D'      # Google Analytics 4 (medicion de conversiones)
+AW_ID = 'AW-18535491182'     # Google Ads (conversiones de anuncios); va en el mismo bloque gtag
 
 
 def esc(t):
@@ -314,6 +315,7 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='i
   function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
   gtag('config', '{ga}');
+  gtag('config', '{aw}');
 </script>
 <script src="/assets/track.js" defer></script>
 <script src="/assets/motion.js" defer></script>
@@ -332,7 +334,7 @@ def page(title, desc, path, body, jsonld, og_image, og_type='website', robots='i
 </html>
 '''.format(title=attr(title), desc=attr(desc), url=url, og_type=og_type, og_image=og_image, body=body,
            icon=shared['icon'], fonts=shared['fonts'], jsonld='\n'.join(jsonld),
-           ga=GA_ID, robots=robots, sprite=shared['sprite'], header=header, footer=footer,
+           ga=GA_ID, aw=AW_ID, robots=robots, sprite=shared['sprite'], header=header, footer=footer,
            wsp=shared['wsp'], script=phone_script(shared['webapp']))
 
 
