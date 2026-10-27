@@ -850,7 +850,7 @@ def build_ads_landing(by_slug):
         <div class="form-success" id="lpSuccess">
           <div class="check-circle">✓</div>
           <h4>¡Tu cotización fue enviada!</h4>
-          <p>Gracias por confiar en nosotros. Te contactaremos a la brevedad con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+          <p>Gracias por confiar en nosotros. Te contactaremos a la brevedad con tu propuesta personalizada.</p>
         </div>
       </div>
     </div>
@@ -885,7 +885,7 @@ def build_ads_thanks():
     <div class="form-success" style="display:block;">
       <div class="check-circle">✓</div>
       <h1 style="font-size:clamp(26px,3.2vw,38px);margin:8px 0 14px;">¡Tu cotización fue enviada!</h1>
-      <p style="font-size:17px;color:var(--slate);line-height:1.6;max-width:none;">Gracias por confiar en nosotros. Te contactaremos en menos de 24 horas con tu propuesta personalizada. También te enviamos un correo de confirmación.</p>
+      <p style="font-size:17px;color:var(--slate);line-height:1.6;max-width:none;">Gracias por confiar en nosotros. Te contactaremos en menos de 24 horas con tu propuesta personalizada.</p>
     </div>
     <p style="margin-top:26px;"><a href="[[wsp]]" class="btn btn-wsp js-wsp-link" target="_blank" rel="noopener"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg> Escribirme por WhatsApp</a></p>
     <p style="margin-top:34px;color:var(--slate);">Mientras tanto, puedes revisar <a href="/planes/" style="color:var(--teal-deep);text-decoration:underline;">todos los planes</a> o leer nuestras <a href="/guias/" style="color:var(--teal-deep);text-decoration:underline;">guías de salud</a>.</p>
