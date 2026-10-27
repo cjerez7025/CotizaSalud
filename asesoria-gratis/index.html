@@ -154,10 +154,15 @@
   var q = new URLSearchParams(location.search);
   var camp = q.get('utm_campaign') || q.get('utm_term') || '';
   var origen = 'landing-ads' + (camp ? ' · ' + camp.slice(0, 60) : '');
+  var hpEl = document.createElement('input');
+  hpEl.type = 'text'; hpEl.name = 'hp_contacto'; hpEl.tabIndex = -1; hpEl.autocomplete = 'off';
+  hpEl.setAttribute('aria-hidden', 'true');
+  hpEl.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;opacity:0;';
+  if (form) form.appendChild(hpEl);
   if (form) form.addEventListener('submit', function(e){
     e.preventDefault();
     if (!form.reportValidity()) return;
-    var payload = { origen: origen };
+    var payload = { origen: origen, hp: hpEl.value, t: Math.round(performance.now()) };
     ['nombre','telefono','email','sistema','interes','mensaje'].forEach(function(k){ payload[k] = (document.getElementById('lp-' + k).value || '').trim(); });
     btn.disabled = true; var txt = btn.textContent; btn.textContent = 'Enviando...';
     status.className = 'form-status loading'; status.textContent = 'Enviando tu cotización...';

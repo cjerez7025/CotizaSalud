@@ -38,9 +38,9 @@ function doPost(e) {
     var raw = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
     var input = JSON.parse(raw);
 
-    if (!input.nombre || !input.email) {
-      return jsonResponse({ ok: false, error: 'Faltan campos obligatorios: nombre y email.' });
-    }
+    var verdict = checkSubmission(input);
+    if (verdict.silent) return jsonResponse({ ok: true });
+    if (verdict.error) return jsonResponse({ ok: false, error: verdict.error });
 
     var config = getConfig();
     appendCotizacion(input);
@@ -97,17 +97,72 @@ function jsonResponse(body) {
   );
 }
 
+/**
+ * Defensa contra bots y abuso del formulario (el endpoint es publico):
+ * - Campo trampa (hp) lleno o envio en menos de MIN_FILL_MS: se descarta sin avisar (silent).
+ * - Sin marca de tiempo (t): no viene de nuestro formulario.
+ * - Validacion y largos de cada campo.
+ * - Limites con CacheService: un mismo correo cada 10 min y un tope global por hora.
+ */
+var MIN_FILL_MS = 2500;
+var MAX_POR_HORA = 40;
+
+function checkSubmission(input) {
+  if (input.hp && String(input.hp).length > 0) return { silent: true };
+  if (typeof input.t !== 'number' || !isFinite(input.t)) {
+    return { error: 'Actualiza la página e intenta de nuevo.' };
+  }
+  if (input.t < MIN_FILL_MS) return { silent: true };
+
+  var nombre = (input.nombre || '').toString().trim();
+  var email = (input.email || '').toString().trim();
+  var digits = (input.telefono || '').toString().replace(/[^0-9]/g, '');
+  if (!nombre || !email) return { error: 'Faltan campos obligatorios: nombre y email.' };
+  if (nombre.length < 2 || nombre.length > 100) return { error: 'Revisa tu nombre.' };
+  if (email.length > 120 || !/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']{2,}$/.test(email)) {
+    return { error: 'Revisa tu correo electrónico.' };
+  }
+  if (input.telefono && (digits.length < 8 || digits.length > 15)) return { error: 'Revisa tu teléfono.' };
+  if ((input.mensaje || '').toString().length > 1000) return { error: 'El mensaje es demasiado largo.' };
+  if ((input.sistema || '').toString().length > 80 || (input.interes || '').toString().length > 80 ||
+      (input.origen || '').toString().length > 120) {
+    return { error: 'Datos inválidos.' };
+  }
+
+  var cache = CacheService.getScriptCache();
+  var keyEmail = 'em:' + email.toLowerCase();
+  if (cache.get(keyEmail)) return { silent: true };
+  var keyHora = 'n:' + Utilities.formatDate(new Date(), 'America/Santiago', 'yyyyMMddHH');
+  var count = parseInt(cache.get(keyHora) || '0', 10);
+  if (count >= MAX_POR_HORA) {
+    return { error: 'Recibimos muchas solicitudes. Escríbenos por WhatsApp y te atendemos de inmediato.' };
+  }
+  cache.put(keyEmail, '1', 600);
+  cache.put(keyHora, String(count + 1), 3600);
+  return {};
+}
+
+function escapeHtml(value) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Evita que Sheets interprete como formula un texto que empieza con = + - @ */
+function safeCell(value) {
+  var v = value || '';
+  return /^[=+\-@]/.test(v) ? "'" + v : v;
+}
+
 function appendCotizacion(input) {
   var sheet = getOrCreateCotizacionesSheet();
   sheet.appendRow([
     new Date(),
-    input.origen || 'formulario',
-    input.nombre || '',
-    input.telefono || '',
-    input.email || '',
-    input.sistema || '',
-    input.interes || '',
-    input.mensaje || '',
+    safeCell(input.origen || 'formulario'),
+    safeCell(input.nombre),
+    safeCell(input.telefono),
+    safeCell(input.email),
+    safeCell(input.sistema),
+    safeCell(input.interes),
+    safeCell(input.mensaje),
     'Nueva',
   ]);
 }
@@ -136,7 +191,7 @@ function sendClientEmail(input, config) {
   var htmlBody =
     '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0A2A43;line-height:1.55;">' +
     bodyLines.map(function (line) {
-      return line === '' ? '<br>' : '<p style="margin:0 0 4px;">' + line + '</p>';
+      return line === '' ? '<br>' : '<p style="margin:0 0 4px;">' + escapeHtml(line) + '</p>';
     }).join('') +
     buildSignatureHtml(ejecutiva, config) +
     '</div>';

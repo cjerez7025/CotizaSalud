@@ -1632,6 +1632,11 @@
       var wrap = document.getElementById(wrapId);
       var success = document.getElementById(successId);
       if(!form) return;
+      var hpEl = document.createElement('input');
+      hpEl.type = 'text'; hpEl.name = 'hp_contacto'; hpEl.tabIndex = -1; hpEl.autocomplete = 'off';
+      hpEl.setAttribute('aria-hidden', 'true');
+      hpEl.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;opacity:0;';
+      form.appendChild(hpEl);
 
       form.addEventListener('submit', function(e){
         e.preventDefault();
@@ -1646,7 +1651,7 @@
         }
         if(!form.reportValidity()) return;
 
-        var payload = { origen: origen };
+        var payload = { origen: origen, hp: hpEl.value, t: Math.round(performance.now()) };
         Object.keys(fields).forEach(function(key){
           var el = document.getElementById(fields[key]);
           payload[key] = el ? el.value.trim() : '';
