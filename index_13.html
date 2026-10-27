@@ -1469,13 +1469,17 @@
         try{ sessionStorage.setItem('promo30oct', '1'); }catch(e){}
         promoEvt('promo_view');
       };
-      var closePromo = function(){ promo.classList.remove('open'); document.body.style.overflow = ''; };
+      // Al cerrar el popup de promocion, el formulario de cotizacion se abre solo (tras afterMs)
+      var closePromo = function(afterMs){
+        promo.classList.remove('open'); document.body.style.overflow = '';
+        setTimeout(function(){ if(typeof openModal === 'function') openModal(); }, afterMs);
+      };
       var promoImg = promo.querySelector('img');
       if(promoImg.complete) setTimeout(openPromo, 600); else promoImg.addEventListener('load', function(){ setTimeout(openPromo, 300); });
-      promo.querySelector('.promo-x').addEventListener('click', closePromo);
-      promo.querySelector('.promo-cta').addEventListener('click', function(){ promoEvt('promo_click'); closePromo(); });
-      promo.addEventListener('click', function(e){ if(e.target === promo) closePromo(); });
-      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && promo.classList.contains('open')) closePromo(); });
+      promo.querySelector('.promo-x').addEventListener('click', function(){ closePromo(5000); });
+      promo.querySelector('.promo-cta').addEventListener('click', function(e){ e.preventDefault(); promoEvt('promo_click'); closePromo(250); });
+      promo.addEventListener('click', function(e){ if(e.target === promo) closePromo(5000); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && promo.classList.contains('open')) closePromo(5000); });
     }
   }catch(err){ console.error('promo modal error', err); }
 </script>
