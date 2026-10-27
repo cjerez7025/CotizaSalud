@@ -44,7 +44,7 @@ function doPost(e) {
 
     var config = getConfig();
     appendCotizacion(input);
-    // Solo se avisa a la ejecutiva: ya no se envia correo de confirmacion al cliente (sendClientEmail queda sin uso).
+    sendClientEmail(input, config);
     sendAdminEmail(input, config);
 
     return jsonResponse({ ok: true });
