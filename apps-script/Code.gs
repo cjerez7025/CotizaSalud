@@ -213,6 +213,7 @@ function sendClientEmail(input, config) {
     body: body,
     htmlBody: htmlBody,
     name: config.remitenteNombre,
+    replyTo: config.adminEmail,
     inlineImages: { bupaLogo: logoBlob, instagramIcon: instagramIconBlob },
   });
 }

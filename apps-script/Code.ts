@@ -260,6 +260,7 @@ function sendClientEmail(input: CotizacionInput, config: ConfigValues): void {
     body,
     htmlBody,
     name: config.remitenteNombre,
+    replyTo: config.adminEmail,
     inlineImages: { bupaLogo: logoBlob, instagramIcon: instagramIconBlob },
   });
 }
