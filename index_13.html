@@ -1680,7 +1680,9 @@
               form.reset();
               if(wrap) wrap.style.display = 'none';
               if(success) success.style.display = 'block';
-              if(window.gtag) gtag('event', 'generate_lead', { form_id: formId, lead_source: origen });
+              // La conversion (Google Ads y GA4) se mide en la pagina de gracias
+              try{ sessionStorage.setItem('lead_ads', origen); }catch(e){}
+              window.location.href = '/asesoria-gratis/gracias/';
             } else {
               status.className = 'form-status error';
               status.textContent = (data && data.error) || 'No pudimos enviar tu cotización. Intenta nuevamente.';

@@ -894,9 +894,10 @@ def build_ads_thanks():
 <script>
 (function(){
   try {
-    if (sessionStorage.getItem('lead_ads') === '1') {
+    var src = sessionStorage.getItem('lead_ads');
+    if (src) {
       sessionStorage.removeItem('lead_ads');
-      if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: 'landing-ads' });
+      if (window.gtag) gtag('event', 'generate_lead', { form_id: 'lpForm', lead_source: src === '1' ? 'landing-ads' : src });
     }
   } catch (e) {}
 })();
