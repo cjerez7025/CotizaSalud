@@ -2,11 +2,21 @@
  * Envia eventos solo si gtag esta cargado; si el visitante bloquea Analytics, no pasa nada.
  * Eventos: whatsapp_click, phone_click, cta_click. El envio de formularios (generate_lead)
  * se dispara desde el codigo del formulario en index_13.html. No se envian datos personales.
+ * Los clics en WhatsApp y telefono tambien se envian a Google Ads como conversiones
+ * secundarias (no influyen en la optimizacion de las campanas).
  */
 (function () {
+  var ADS_CONVERSIONS = {
+    whatsapp_click: 'AW-18535491182/bSC5CPaA-a4dEO7MtIZF',
+    phone_click: 'AW-18535491182/5_PjCPmA-a4dEO7MtIZF'
+  };
+
   function send(name, params) {
     try {
-      if (typeof window.gtag === 'function') window.gtag('event', name, params || {});
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', name, params || {});
+        if (ADS_CONVERSIONS[name]) window.gtag('event', 'conversion', { send_to: ADS_CONVERSIONS[name] });
+      }
     } catch (e) { /* la medicion nunca debe romper el sitio */ }
   }
 
