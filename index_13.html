@@ -1331,15 +1331,6 @@
 
 <a href="https://wa.me/56936205530?text=Hola%2C%20quiero%20cotizar%20un%20seguro%20de%20salud%20Bupa" class="wsp-float js-wsp-link" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg class="icon-wsp" aria-hidden="true"><use href="#icon-wsp"></use></svg></a>
 
-<!-- POPUP DE PROMOCION (se muestra hasta el 30 de octubre de 2026) -->
-<div class="modal-overlay" id="promoModal" role="dialog" aria-modal="true" aria-label="Promoción: contrata antes del 30 de octubre">
-  <div class="promo-card">
-    <img src="/images/promo/no-dejes-pasar-la-fecha-1200.webp" srcset="/images/promo/no-dejes-pasar-la-fecha-640.webp 640w, /images/promo/no-dejes-pasar-la-fecha-1200.webp 1200w" sizes="(max-width: 940px) 94vw, 880px" width="1200" height="769" alt="¡No dejes pasar la fecha! Contrata tu seguro de salud antes del 30 de octubre y comienza tu cobertura desde el 1 de noviembre. Protege tu salud y la de tu familia con la tranquilidad que mereces.">
-    <a class="promo-cta" href="#contacto" aria-label="Quiero contratar: ir al formulario de cotización"></a>
-    <button class="promo-x" type="button" aria-label="Cerrar"></button>
-  </div>
-</div>
-
 <!-- MODAL DE BIENVENIDA -->
 <div class="modal-overlay" id="welcomeModal">
   <div class="modal-card">
@@ -1456,41 +1447,12 @@
 
 
 <script>
-  // ---- Popup de promocion: al entrar, una vez por sesion, hasta el 30 de octubre de 2026 (hora de Chile) ----
-  try{
-    var promo = document.getElementById('promoModal');
-    var promoSeen = false;
-    try{ promoSeen = sessionStorage.getItem('promo30oct') === '1'; }catch(e){}
-    if(promo && new Date() < new Date('2026-10-31T00:00:00-03:00') && !promoSeen){
-      window.__promoShown = true;
-      var promoEvt = function(n){ try{ if(window.gtag) gtag('event', n, { promo: 'contrata-antes-30-oct' }); }catch(e){} };
-      var openPromo = function(){
-        promo.classList.add('open'); document.body.style.overflow = 'hidden';
-        try{ sessionStorage.setItem('promo30oct', '1'); }catch(e){}
-        promoEvt('promo_view');
-      };
-      // Al cerrar el popup de promocion, el formulario de cotizacion se abre solo (tras afterMs)
-      var closePromo = function(afterMs){
-        promo.classList.remove('open'); document.body.style.overflow = '';
-        setTimeout(function(){ if(typeof openModal === 'function') openModal(); }, afterMs);
-      };
-      var promoImg = promo.querySelector('img');
-      if(promoImg.complete) setTimeout(openPromo, 600); else promoImg.addEventListener('load', function(){ setTimeout(openPromo, 300); });
-      promo.querySelector('.promo-x').addEventListener('click', function(){ closePromo(5000); });
-      promo.querySelector('.promo-cta').addEventListener('click', function(e){ e.preventDefault(); promoEvt('promo_click'); closePromo(250); });
-      promo.addEventListener('click', function(e){ if(e.target === promo) closePromo(5000); });
-      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && promo.classList.contains('open')) closePromo(5000); });
-    }
-  }catch(err){ console.error('promo modal error', err); }
-</script>
-
-<script>
   // ---- Welcome modal (se registra primero y de forma aislada) ----
   try{
     var modal = document.getElementById('welcomeModal');
     var openModal = function(){ modal.classList.add('open'); document.body.style.overflow = 'hidden'; };
     var closeModal = function(){ modal.classList.remove('open'); document.body.style.overflow = ''; };
-    setTimeout(function(){ if(!window.__promoShown) openModal(); }, 10000);
+    setTimeout(openModal, 10000);
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalLater').addEventListener('click', closeModal);
     modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
